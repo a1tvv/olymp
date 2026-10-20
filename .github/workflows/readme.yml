@@ -1,0 +1,29 @@
+# Подстраховка для git-хука: если коммит сделан не с этого мака (например, через сайт GitHub),
+# проверяет решения и пересобирает README. Если README уже актуален — ничего не коммитит.
+name: README
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Проверить решения и пересобрать README
+        run: python3 scripts/build.py
+
+      - name: Закоммитить, если что-то изменилось
+        run: |
+          git add README.md assets
+          if git diff --cached --quiet; then echo "README уже актуален"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "README: обновить статистику решений"
+          git push

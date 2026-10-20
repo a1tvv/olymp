@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="240" height="132" viewBox="0 0 240 132" role="img" aria-label="Скоро · в работе">
 <defs><linearGradient id="tile" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#161618"/><stop offset="1" stop-color="#000000"/></linearGradient></defs>
 <g font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
-<rect x="8.5" y="6.5" width="223" height="119" rx="26" fill="url(#tile)" stroke="#ffffff" stroke-opacity="0.1"/><rect x="40" y="32" width="160" height="46" rx="23" fill="#ffffff" fill-opacity="0.08"/><text x="120" y="62" font-size="21" font-weight="600" fill="#8e8e93" text-anchor="middle">Скоро</text><text x="120" y="105" font-size="18" font-weight="500" fill="#86868b" text-anchor="middle">в работе</text>
+<rect x="8.5" y="6.5" width="223" height="119" rx="26" fill="url(#tile)" stroke="#ffffff" stroke-opacity="0.1"/><rect x="40" y="32" width="160" height="46" rx="23" fill="#ffffff" fill-opacity="0.08"/><text x="120" y="62" font-size="21" font-weight="600" fill="#98989d" text-anchor="middle">Скоро</text><text x="120" y="105" font-size="18" font-weight="500" fill="#86868b" text-anchor="middle">в работе</text>
 </g>
 </svg>

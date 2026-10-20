@@ -8,6 +8,7 @@
 *.dSYM/
 *.o
 *.out
+!**/tests/**/*.out
 
 # Python
 .venv/
