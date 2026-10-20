@@ -1,11 +1,11 @@
-<a href="#контесты"><img src="assets/banner.svg" alt="Алтай Абдурахим — олимпиадное программирование" width="100%"></a>
+<a href="#contests"><img src="assets/banner.svg" alt="Алтай Абдурахим — олимпиадное программирование" width="100%"></a>
 
 <p align="center">
-  <a href="#контесты">Контесты&nbsp;›</a>&emsp;
-  <a href="#разборы">Разборы&nbsp;›</a>&emsp;
-  <a href="#алгоритмы">Алгоритмы&nbsp;›</a>&emsp;
-  <a href="#структура">Структура&nbsp;›</a>&emsp;
-  <a href="#запуск">Запуск&nbsp;›</a>
+  <a href="#contests">Контесты&nbsp;›</a>&emsp;
+  <a href="#editorials">Разборы&nbsp;›</a>&emsp;
+  <a href="#algorithms">Алгоритмы&nbsp;›</a>&emsp;
+  <a href="#structure">Структура&nbsp;›</a>&emsp;
+  <a href="#run">Запуск&nbsp;›</a>
 </p>
 
 <br>
@@ -22,122 +22,81 @@
 
 <br>
 
-## Контесты
+<a name="contests"></a>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/titles/contests-dark.svg">
+  <img src="assets/titles/contests-light.svg" alt="Контесты" width="100%">
+</picture>
 
-Каждая задача: условие, решение и разбор.
+<a href="contests/2026-icpc-kyrgyzstan-qual/statements"><img src="assets/icpc-kg-qual-2026.svg" alt="ICPC NERC Kyrgyzstan Qualification, 3 октября 2026: A, B, D решены; C — черновик; E, H — скоро" width="100%"></a>
 
-<img src="assets/icpc-kg-qual-2026.svg" alt="ICPC NERC Kyrgyzstan Qualification, 3 октября 2026: A, B, D решены; C — черновик; E, H — скоро" width="100%">
+<p>
+<a href="contests/2026-icpc-kyrgyzstan-qual/statements/A.pdf"><img src="assets/rows/A.svg" alt="A · Немного истории" width="79%"></a><a href="contests/2026-icpc-kyrgyzstan-qual/solutions/A.py"><img src="assets/rows/btn-python.svg" alt="Код A на Python" width="20%"></a><br>
+<a href="contests/2026-icpc-kyrgyzstan-qual/statements/B.pdf"><img src="assets/rows/B.svg" alt="B · Ответственная стирка" width="79%"></a><a href="contests/2026-icpc-kyrgyzstan-qual/solutions/B.py"><img src="assets/rows/btn-python.svg" alt="Код B на Python" width="20%"></a><br>
+<a href="contests/2026-icpc-kyrgyzstan-qual/statements/C.pdf"><img src="assets/rows/C.svg" alt="C · Сизифов труд" width="79%"></a><a href="contests/2026-icpc-kyrgyzstan-qual/solutions/C.py"><img src="assets/rows/btn-python.svg" alt="Код C на Python" width="20%"></a><br>
+<a href="contests/2026-icpc-kyrgyzstan-qual/statements/D.pdf"><img src="assets/rows/D.svg" alt="D · Чат-бот на калькуляторе" width="79%"></a><a href="contests/2026-icpc-kyrgyzstan-qual/solutions/D.py"><img src="assets/rows/btn-python.svg" alt="Код D на Python" width="20%"></a><br>
+<a href="contests/2026-icpc-kyrgyzstan-qual/statements/E.pdf"><img src="assets/rows/E.svg" alt="E · Сортировка вставками" width="79%"></a><a href="contests/2026-icpc-kyrgyzstan-qual/statements/E.pdf"><img src="assets/rows/btn-soon.svg" alt="Скоро" width="20%"></a><br>
+<a href="contests/2026-icpc-kyrgyzstan-qual/statements/H.pdf"><img src="assets/rows/H.svg" alt="H · Каждому префиксу по медиане!" width="79%"></a><a href="contests/2026-icpc-kyrgyzstan-qual/statements/H.pdf"><img src="assets/rows/btn-soon.svg" alt="Скоро" width="20%"></a><br>
+</p>
 
-| | Задача | Темы | Решение | Статус |
-|:-:|:--|:--|:-:|:-:|
-| <kbd>A</kbd> | [Немного истории](contests/2026-icpc-kyrgyzstan-qual/statements/A.pdf) | `реализация` | [![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)](contests/2026-icpc-kyrgyzstan-qual/solutions/A.py) | ![Решена](https://img.shields.io/badge/%D0%A0%D0%B5%D1%88%D0%B5%D0%BD%D0%B0-30d158?style=flat-square) |
-| <kbd>B</kbd> | [Ответственная стирка](contests/2026-icpc-kyrgyzstan-qual/statements/B.pdf) | `жадность` `группировка` | [![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)](contests/2026-icpc-kyrgyzstan-qual/solutions/B.py) | ![Решена](https://img.shields.io/badge/%D0%A0%D0%B5%D1%88%D0%B5%D0%BD%D0%B0-30d158?style=flat-square) |
-| <kbd>C</kbd> | [Сизифов труд](contests/2026-icpc-kyrgyzstan-qual/statements/C.pdf) | `математика` | [![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)](contests/2026-icpc-kyrgyzstan-qual/solutions/C.py) | ![Черновик](https://img.shields.io/badge/%D0%A7%D0%B5%D1%80%D0%BD%D0%BE%D0%B2%D0%B8%D0%BA-ff9f0a?style=flat-square) |
-| <kbd>D</kbd> | [Чат-бот на калькуляторе](contests/2026-icpc-kyrgyzstan-qual/statements/D.pdf) | `перебор` `цифры` | [![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)](contests/2026-icpc-kyrgyzstan-qual/solutions/D.py) | ![Решена](https://img.shields.io/badge/%D0%A0%D0%B5%D1%88%D0%B5%D0%BD%D0%B0-30d158?style=flat-square) |
-| <kbd>E</kbd> | [Сортировка вставками](contests/2026-icpc-kyrgyzstan-qual/statements/E.pdf) | `конструктив` `инверсии` | — | ![Скоро](https://img.shields.io/badge/%D0%A1%D0%BA%D0%BE%D1%80%D0%BE-8e8e93?style=flat-square) |
-| <kbd>H</kbd> | [Каждому префиксу по медиане!](contests/2026-icpc-kyrgyzstan-qual/statements/H.pdf) | `медиана` `кучи` | — | ![Скоро](https://img.shields.io/badge/%D0%A1%D0%BA%D0%BE%D1%80%D0%BE-8e8e93?style=flat-square) |
+<br>
 
-<sub>«Решена» — проходит все примеры из условия. Название задачи открывает условие в PDF.</sub>
+<a name="editorials"></a>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/titles/editorials-dark.svg">
+  <img src="assets/titles/editorials-light.svg" alt="Разборы" width="100%">
+</picture>
 
-### Разборы
+<img src="assets/editorials.svg" alt="Разборы: A — три условия на год, O(1). B — носки одной стиркой, майки по цветовым группам, кофты и штаны по ⌈k/2⌉, O(N). C — максимум f(k) = kA − B·k(k−1)/2 при k = ⌈A/B⌉ (черновик). D — перебор чисел от 0 до N, O(N log N)." width="100%">
+
+<br>
+<br>
+
+<a name="algorithms"></a>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/titles/algorithms-dark.svg">
+  <img src="assets/titles/algorithms-light.svg" alt="Алгоритмы" width="100%">
+</picture>
+
+<a href="algorithms/sorting/bubble_sort_swaps.cpp"><img src="assets/rows/bubble-sort.svg" alt="Сортировка пузырьком — считает число обменов, O(n²), C++" width="100%"></a>
+
+<br>
+<br>
+
+<a name="cpp"></a>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/titles/cpp-dark.svg">
+  <img src="assets/titles/cpp-light.svg" alt="C++ basics" width="100%">
+</picture>
+
+<a href="cpp-basics/hello.cpp"><img src="assets/rows/hello-cpp.svg" alt="hello.cpp — первая программа" width="100%"></a>
+<a href="cpp-basics/f1.cpp"><img src="assets/rows/f1-cpp.svg" alt="f1.cpp — классы и наследование" width="100%"></a>
+
+<br>
+<br>
+
+<a name="structure"></a>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/titles/structure-dark.svg">
+  <img src="assets/titles/structure-light.svg" alt="Структура" width="100%">
+</picture>
+
+<img src="assets/structure.svg" alt="Структура: contests/ — условия и решения контестов, algorithms/ — классические алгоритмы, cpp-basics/ — песочница по C++, assets/ — картинки для README" width="100%">
+
+<br>
+<br>
+
+<a name="run"></a>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/titles/run-dark.svg">
+  <img src="assets/titles/run-light.svg" alt="Запуск" width="100%">
+</picture>
+
+<img src="assets/run.svg" alt="Запуск решений в терминале" width="100%">
 
 <details>
-<summary><b>A · Немного истории</b> &nbsp;<code>O(1)</code></summary>
+<summary>Скопировать команды</summary>
 <br>
-
-- `ICPC Regional` проводится каждый год, начиная с 2005-го.
-- `ICPC Qual` — с 2019-го, кроме ковидных 2020 и 2021.
-- `School Regional` и `School Qual` впервые проходят в 2026-м.
-
-Хватает трёх условий на год.
-
-</details>
-
-<details>
-<summary><b>B · Ответственная стирка</b> &nbsp;<code>O(N)</code></summary>
-<br>
-
-- Все носки стираются вместе — максимум **одна** стирка.
-- Цвета делятся на группы: `White`, `Yellow`, `Red`, `Green` — каждый сам по себе, а `Black`, `Blue`, `Gray` — общая «тёмная» группа.
-- Майки: по одной стирке на каждую группу, где есть хотя бы одна майка.
-- Кофты и штаны: группе из $`k`$ вещей нужно $`\lceil k/2 \rceil`$ стирок.
-
-Ответ — сумма по всем пунктам.
-
-</details>
-
-<details>
-<summary><b>C · Сизифов труд</b> &nbsp;🚧 черновик</summary>
-<br>
-
-Сейчас решение моделирует дни один за другим для одной пары $`A, B`$. Что осталось сделать:
-
-- читать $`Q`$ пар, по паре в строке;
-- после $`k`$-го дня Сизиф стоит в точке $`f(k) = kA - B\cdot\frac{k(k-1)}{2}`$;
-- $`f(k+1) - f(k) = A - kB`$, значит $`f`$ растёт, пока $`kB \lt A`$, и максимум достигается при $`k = \lceil A/B \rceil`$.
-
-Это $`O(1)`$ на запрос вместо $`\approx A/B`$ шагов: на тесте `987654321 1` симуляция делает около $`10^9`$ итераций.
-
-</details>
-
-<details>
-<summary><b>D · Чат-бот на калькуляторе</b> &nbsp;<code>O(N · log N)</code></summary>
-<br>
-
-- Перебираем все числа от $`0`$ до $`N`$ и смотрим на множество их цифр.
-- Обычный вид: цифры $`\subseteq \{0, 1, 5, 8\}`$.
-- Перевёрнутый: цифры $`\subseteq \{0, 1, 3, 5, 7, 8\}`$.
-
-$`N \le 123\,456`$, так что прямой перебор укладывается с большим запасом.
-
-</details>
-
-<br>
-
-## Алгоритмы
-
-Классика, написанная своими руками.
-
-| Алгоритм | Что делает | Сложность | Код |
-|:--|:--|:-:|:-:|
-| Сортировка пузырьком | Сортирует массив и считает число обменов — оно равно числу инверсий | `O(n²)` | [![C++](https://img.shields.io/badge/C%2B%2B-00599C?style=flat-square&logo=cplusplus&logoColor=white)](algorithms/sorting/bubble_sort_swaps.cpp) |
-
-<br>
-
-## C++ basics
-
-Песочница, в которой разбираю основы языка.
-
-| Файл | О чём |
-|:--|:--|
-| [`hello.cpp`](cpp-basics/hello.cpp) | Первая программа: функция, вывод, `setlocale` |
-| [`f1.cpp`](cpp-basics/f1.cpp) | Классы и наследование: `Driver` → `Pilot` 🏎️ |
-
-<br>
-
-## Структура
-
-Всё на своих местах.
-
-```text
-olymp/
-├── contests/
-│   └── 2026-icpc-kyrgyzstan-qual/
-│       ├── statements/      условия задач (PDF)
-│       └── solutions/       решения: A.py, B.py, …
-├── algorithms/
-│   └── sorting/             классические алгоритмы
-├── cpp-basics/              песочница по C++
-└── assets/                  картинки для README
-```
-
-Новый контест — новая папка `contests/<год>-<название>/` с такими же `statements/` и `solutions/`.
-
-<br>
-
-## Запуск
-
-Скопировал. Запустил. Готово.
 
 ```bash
 # Python
@@ -149,6 +108,8 @@ clang++ -std=c++17 -O2 algorithms/sorting/bubble_sort_swaps.cpp -o bubble
 echo "4  4 2 3 1" | ./bubble
 # 5
 ```
+
+</details>
 
 <br>
 
