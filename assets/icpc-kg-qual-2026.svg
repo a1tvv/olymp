@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="370" viewBox="0 0 1200 370" role="img" aria-label="ICPC NERC Kyrgyzstan Qualification 2026: A, B, D решены; C — черновик; E, H — скоро">
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#161618"/>
+      <stop offset="1" stop-color="#000000"/>
+    </linearGradient>
+    <linearGradient id="titanium" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0.2" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#8e8e93"/>
+    </linearGradient>
+    <linearGradient id="ai" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff9f0a"/>
+      <stop offset="0.35" stop-color="#ff375f"/>
+      <stop offset="0.7" stop-color="#bf5af2"/>
+      <stop offset="1" stop-color="#0a84ff"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0.5" y="0.5" width="1199" height="369" rx="31.5" fill="url(#tile)" stroke="#ffffff" stroke-opacity="0.1"/>
+
+  <g font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="600">
+    <text x="48" y="84" font-size="22" fill="url(#ai)">ICPC NERC · 3 октября 2026</text>
+    <text x="46" y="146" font-size="54" font-weight="700" letter-spacing="-1.5" fill="url(#titanium)">Kyrgyzstan Qualification</text>
+
+    <!-- задачи: каждая карточка плавно появляется по очереди -->
+    <g>
+      <animate attributeName="opacity" values="0;1" dur="0.5s" fill="freeze"/>
+      <rect x="48" y="196" width="172" height="126" rx="24" fill="#30d158" fill-opacity="0.1" stroke="#30d158" stroke-opacity="0.45"/>
+      <text x="76" y="262" font-size="44" font-weight="700" fill="#f5f5f7">A</text>
+      <circle cx="192" cy="224" r="9" fill="#30d158"/>
+      <text x="76" y="300" font-size="20" fill="#30d158">Решена</text>
+    </g>
+    <g>
+      <animate attributeName="opacity" values="0;0;1" keyTimes="0;0.17;1" dur="0.6s" fill="freeze"/>
+      <rect x="234.4" y="196" width="172" height="126" rx="24" fill="#30d158" fill-opacity="0.1" stroke="#30d158" stroke-opacity="0.45"/>
+      <text x="262.4" y="262" font-size="44" font-weight="700" fill="#f5f5f7">B</text>
+      <circle cx="378.4" cy="224" r="9" fill="#30d158"/>
+      <text x="262.4" y="300" font-size="20" fill="#30d158">Решена</text>
+    </g>
+    <g>
+      <animate attributeName="opacity" values="0;0;1" keyTimes="0;0.29;1" dur="0.7s" fill="freeze"/>
+      <rect x="420.8" y="196" width="172" height="126" rx="24" fill="#ff9f0a" fill-opacity="0.1" stroke="#ff9f0a" stroke-opacity="0.45"/>
+      <text x="448.8" y="262" font-size="44" font-weight="700" fill="#f5f5f7">C</text>
+      <circle cx="564.8" cy="224" r="9" fill="#ff9f0a"/>
+      <text x="448.8" y="300" font-size="20" fill="#ff9f0a">Черновик</text>
+    </g>
+    <g>
+      <animate attributeName="opacity" values="0;0;1" keyTimes="0;0.37;1" dur="0.8s" fill="freeze"/>
+      <rect x="607.2" y="196" width="172" height="126" rx="24" fill="#30d158" fill-opacity="0.1" stroke="#30d158" stroke-opacity="0.45"/>
+      <text x="635.2" y="262" font-size="44" font-weight="700" fill="#f5f5f7">D</text>
+      <circle cx="751.2" cy="224" r="9" fill="#30d158"/>
+      <text x="635.2" y="300" font-size="20" fill="#30d158">Решена</text>
+    </g>
+    <g>
+      <animate attributeName="opacity" values="0;0;1" keyTimes="0;0.44;1" dur="0.9s" fill="freeze"/>
+      <rect x="793.6" y="196" width="172" height="126" rx="24" fill="#ffffff" fill-opacity="0.04" stroke="#ffffff" stroke-opacity="0.12"/>
+      <text x="821.6" y="262" font-size="44" font-weight="700" fill="#6e6e73">E</text>
+      <circle cx="937.6" cy="224" r="9" fill="none" stroke="#6e6e73" stroke-width="2"/>
+      <text x="821.6" y="300" font-size="20" fill="#6e6e73">Скоро</text>
+    </g>
+    <g>
+      <animate attributeName="opacity" values="0;0;1" keyTimes="0;0.5;1" dur="1s" fill="freeze"/>
+      <rect x="980" y="196" width="172" height="126" rx="24" fill="#ffffff" fill-opacity="0.04" stroke="#ffffff" stroke-opacity="0.12"/>
+      <text x="1008" y="262" font-size="44" font-weight="700" fill="#6e6e73">H</text>
+      <circle cx="1124" cy="224" r="9" fill="none" stroke="#6e6e73" stroke-width="2"/>
+      <text x="1008" y="300" font-size="20" fill="#6e6e73">Скоро</text>
+    </g>
+  </g>
+</svg>

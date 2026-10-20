@@ -1,50 +1,45 @@
-<p align="center">
-  <img src="assets/banner.svg" alt="olymp — олимпиадное программирование" width="100%">
-</p>
+<a href="#контесты"><img src="assets/banner.svg" alt="Алтай Абдурахим — олимпиадное программирование" width="100%"></a>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Python-3-3776AB?style=for-the-badge&logo=python&logoColor=white&labelColor=0d1117" alt="Python 3">
-  <img src="https://img.shields.io/badge/C%2B%2B-17-00599C?style=for-the-badge&logo=cplusplus&logoColor=white&labelColor=0d1117" alt="C++17">
-  <img src="https://img.shields.io/badge/ICPC-NERC_2026-a78bfa?style=for-the-badge&labelColor=0d1117" alt="ICPC NERC 2026">
-  <img src="https://img.shields.io/badge/%D1%80%D0%B5%D1%88%D0%B5%D0%BD%D0%BE-3%2F6-22c55e?style=for-the-badge&labelColor=0d1117" alt="решено 3 из 6">
+  <a href="#контесты">Контесты&nbsp;›</a>&emsp;
+  <a href="#разборы">Разборы&nbsp;›</a>&emsp;
+  <a href="#алгоритмы">Алгоритмы&nbsp;›</a>&emsp;
+  <a href="#структура">Структура&nbsp;›</a>&emsp;
+  <a href="#запуск">Запуск&nbsp;›</a>
 </p>
+
+<br>
+
+<img src="assets/stats.svg" alt="Решено задач: 4 (3 с контеста ICPC, 1 из алгоритмов). Контестов: 1. Языки: C++17, Python 3. Скоро: C, E, H" width="100%">
+
+<br>
+<br>
 
 <p align="center">
   <i>«Talk is cheap. Show me the code.»</i><br>
   <sub>— Linus Torvalds</sub>
 </p>
 
-<p align="center">
-  <a href="#-контесты"><b>Контесты</b></a> &nbsp;·&nbsp;
-  <a href="#-алгоритмы"><b>Алгоритмы</b></a> &nbsp;·&nbsp;
-  <a href="#-c-basics"><b>C++ basics</b></a> &nbsp;·&nbsp;
-  <a href="#-структура"><b>Структура</b></a> &nbsp;·&nbsp;
-  <a href="#-запуск"><b>Запуск</b></a>
-</p>
-
 <br>
 
-## 🏆 Контесты
+## Контесты
 
-### ICPC NERC · Kyrgyzstan Qualification Contest 2026
+Каждая задача: условие, решение и разбор.
 
-<sup>📅 3 октября 2026 &nbsp;·&nbsp; 📍 Кыргызстан &nbsp;·&nbsp; 🧮 6 задач &nbsp;·&nbsp; ✅ решено 3</sup>
+<img src="assets/icpc-kg-qual-2026.svg" alt="ICPC NERC Kyrgyzstan Qualification, 3 октября 2026: A, B, D решены; C — черновик; E, H — скоро" width="100%">
 
 | | Задача | Темы | Решение | Статус |
 |:-:|:--|:--|:-:|:-:|
-| <kbd>A</kbd> | [Немного истории](contests/2026-icpc-kyrgyzstan-qual/statements/A.pdf) | `реализация` | [Python](contests/2026-icpc-kyrgyzstan-qual/solutions/A.py) | ✅ |
-| <kbd>B</kbd> | [Ответственная стирка](contests/2026-icpc-kyrgyzstan-qual/statements/B.pdf) | `жадность` `группировка` | [Python](contests/2026-icpc-kyrgyzstan-qual/solutions/B.py) | ✅ |
-| <kbd>C</kbd> | [Сизифов труд](contests/2026-icpc-kyrgyzstan-qual/statements/C.pdf) | `математика` | [Python](contests/2026-icpc-kyrgyzstan-qual/solutions/C.py) | 🚧 |
-| <kbd>D</kbd> | [Чат-бот на калькуляторе](contests/2026-icpc-kyrgyzstan-qual/statements/D.pdf) | `перебор` `цифры` | [Python](contests/2026-icpc-kyrgyzstan-qual/solutions/D.py) | ✅ |
-| <kbd>E</kbd> | [Сортировка вставками](contests/2026-icpc-kyrgyzstan-qual/statements/E.pdf) | `конструктив` `инверсии` | — | ⏳ |
-| <kbd>H</kbd> | [Каждому префиксу по медиане!](contests/2026-icpc-kyrgyzstan-qual/statements/H.pdf) | `медиана` `кучи` | — | ⏳ |
+| <kbd>A</kbd> | [Немного истории](contests/2026-icpc-kyrgyzstan-qual/statements/A.pdf) | `реализация` | [![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)](contests/2026-icpc-kyrgyzstan-qual/solutions/A.py) | ![Решена](https://img.shields.io/badge/%D0%A0%D0%B5%D1%88%D0%B5%D0%BD%D0%B0-30d158?style=flat-square) |
+| <kbd>B</kbd> | [Ответственная стирка](contests/2026-icpc-kyrgyzstan-qual/statements/B.pdf) | `жадность` `группировка` | [![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)](contests/2026-icpc-kyrgyzstan-qual/solutions/B.py) | ![Решена](https://img.shields.io/badge/%D0%A0%D0%B5%D1%88%D0%B5%D0%BD%D0%B0-30d158?style=flat-square) |
+| <kbd>C</kbd> | [Сизифов труд](contests/2026-icpc-kyrgyzstan-qual/statements/C.pdf) | `математика` | [![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)](contests/2026-icpc-kyrgyzstan-qual/solutions/C.py) | ![Черновик](https://img.shields.io/badge/%D0%A7%D0%B5%D1%80%D0%BD%D0%BE%D0%B2%D0%B8%D0%BA-ff9f0a?style=flat-square) |
+| <kbd>D</kbd> | [Чат-бот на калькуляторе](contests/2026-icpc-kyrgyzstan-qual/statements/D.pdf) | `перебор` `цифры` | [![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)](contests/2026-icpc-kyrgyzstan-qual/solutions/D.py) | ![Решена](https://img.shields.io/badge/%D0%A0%D0%B5%D1%88%D0%B5%D0%BD%D0%B0-30d158?style=flat-square) |
+| <kbd>E</kbd> | [Сортировка вставками](contests/2026-icpc-kyrgyzstan-qual/statements/E.pdf) | `конструктив` `инверсии` | — | ![Скоро](https://img.shields.io/badge/%D0%A1%D0%BA%D0%BE%D1%80%D0%BE-8e8e93?style=flat-square) |
+| <kbd>H</kbd> | [Каждому префиксу по медиане!](contests/2026-icpc-kyrgyzstan-qual/statements/H.pdf) | `медиана` `кучи` | — | ![Скоро](https://img.shields.io/badge/%D0%A1%D0%BA%D0%BE%D1%80%D0%BE-8e8e93?style=flat-square) |
 
-> [!NOTE]
-> ✅ проходит все примеры из условия &nbsp;·&nbsp; 🚧 черновик &nbsp;·&nbsp; ⏳ в планах
->
-> Название задачи ведёт на условие в PDF.
+<sub>«Решена» — проходит все примеры из условия. Название задачи открывает условие в PDF.</sub>
 
-#### Разборы
+### Разборы
 
 <details>
 <summary><b>A · Немного истории</b> &nbsp;<code>O(1)</code></summary>
@@ -99,15 +94,17 @@ $`N \le 123\,456`$, так что прямой перебор укладывае
 
 <br>
 
-## 🧠 Алгоритмы
+## Алгоритмы
+
+Классика, написанная своими руками.
 
 | Алгоритм | Что делает | Сложность | Код |
 |:--|:--|:-:|:-:|
-| Сортировка пузырьком | Сортирует массив и считает число обменов — оно равно числу инверсий | `O(n²)` | [C++](algorithms/sorting/bubble_sort_swaps.cpp) |
+| Сортировка пузырьком | Сортирует массив и считает число обменов — оно равно числу инверсий | `O(n²)` | [![C++](https://img.shields.io/badge/C%2B%2B-00599C?style=flat-square&logo=cplusplus&logoColor=white)](algorithms/sorting/bubble_sort_swaps.cpp) |
 
 <br>
 
-## 🧩 C++ basics
+## C++ basics
 
 Песочница, в которой разбираю основы языка.
 
@@ -118,7 +115,9 @@ $`N \le 123\,456`$, так что прямой перебор укладывае
 
 <br>
 
-## 📁 Структура
+## Структура
+
+Всё на своих местах.
 
 ```text
 olymp/
@@ -136,7 +135,9 @@ olymp/
 
 <br>
 
-## 🚀 Запуск
+## Запуск
+
+Скопировал. Запустил. Готово.
 
 ```bash
 # Python
@@ -150,6 +151,8 @@ echo "4  4 2 3 1" | ./bubble
 ```
 
 <br>
+
+<img src="assets/footer.svg" alt="Stay hungry. Stay foolish. — Steve Jobs, 1955–2011" width="100%">
 
 <p align="center">
   <sub>Сделано с ☕ и <code>-O2</code> &nbsp;·&nbsp; <a href="https://github.com/a1tvv">@a1tvv</a></sub>
