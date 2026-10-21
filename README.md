@@ -11,7 +11,7 @@
 
 <br>
 
-<img src="assets/stats.svg" alt="Решено задач: 4" width="100%">
+<img src="assets/stats.svg" alt="Решено задач: 5" width="100%">
 
 <br>
 <br>
@@ -51,6 +51,7 @@
 <img src="assets/titles/algorithms.svg" alt="Алгоритмы" width="100%">
 
 <a href="algorithms/sorting/bubble_sort_swaps.cpp"><img src="assets/rows/bubble_sort_swaps.svg" alt="Сортировка пузырьком — O(n²)" width="100%"></a>
+<a href="algorithms/sorting/selection_sort.cpp"><img src="assets/rows/selection_sort.svg" alt="Сортировка выбором — O(n²)" width="100%"></a>
 
 <br>
 <br>
