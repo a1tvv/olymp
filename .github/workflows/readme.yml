@@ -21,7 +21,7 @@ jobs:
 
       - name: Закоммитить, если что-то изменилось
         run: |
-          git add README.md assets
+          git add README.md README.ru.md assets
           if git diff --cached --quiet; then echo "README уже актуален"; exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

@@ -3,12 +3,16 @@
     "file": "sorting/bubble_sort_swaps.cpp",
     "name": "Сортировка пузырьком",
     "about": "Сортирует массив и считает число обменов — оно равно числу инверсий",
+    "name_en": "Bubble sort",
+    "about_en": "Sorts an array and counts the swaps — this number equals the number of inversions",
     "complexity": "O(n²)"
   },
   {
     "file": "sorting/selection_sort.cpp",
     "name": "Сортировка выбором",
     "about": "Ставит максимум в конец участка и выводит его индекс на каждой фазе",
+    "name_en": "Selection sort",
+    "about_en": "Puts the maximum at the end of the range and prints its index at each step",
     "complexity": "O(n²)"
   }
 ]

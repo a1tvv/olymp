@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-"""Пересобирает README.md и картинки в assets/.
+"""Пересобирает README и картинки в assets/.
 
 1. Прогоняет каждое решение на примерах из tests/ и ставит статус:
    «Решена» — все примеры прошли, «Черновик» — решение есть, но падает, «Скоро» — решения нет.
    Задачи acmp из first_1000/ проверяются на примерах из шапки-комментария в самом файле.
 2. Считает статистику и рисует карточки в стиле iOS.
+3. Собирает две версии: английскую (README.md, картинки в assets/en) — её GitHub показывает по умолчанию,
+   и русскую (README.ru.md, картинки в assets). Сверху у обеих — ссылка-переключатель.
+   Английские название и описание алгоритма — поля name_en и about_en в algorithms/algorithms.json.
 
 Запуск: python3 scripts/build.py  (то же самое делает git-хук при каждом коммите)
 """
@@ -22,14 +25,38 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS = os.path.join(ROOT, 'assets')
 REPO_URL = 'https://github.com/a1tvv'
 TIME_LIMIT = 10  # секунд на один пример: с запасом, CI-машины бывают медленными
+LANG = 'ru'
+
+
+def tr(ru, en):
+    """Текст на языке, который сейчас собирается."""
+    return en if LANG == 'en' else ru
+
+
+MONTHS_EN = {'января': 'January', 'февраля': 'February', 'марта': 'March', 'апреля': 'April', 'мая': 'May',
+             'июня': 'June', 'июля': 'July', 'августа': 'August', 'сентября': 'September', 'октября': 'October',
+             'ноября': 'November', 'декабря': 'December'}
+
+
+def date(ru):
+    """Дата из contest.json («3 октября 2026») на языке сборки: по-английски — «October 3, 2026»."""
+    m = re.fullmatch(r'(\d+) (\S+) (\d+)', ru)
+    if LANG == 'ru' or not m or m[2] not in MONTHS_EN:
+        return ru
+    return f'{MONTHS_EN[m[2]]} {m[1]}, {m[3]}'
+
+
+def status_label(status):
+    return tr(STATUS[status]['label'], STATUS[status]['label_en'])
+
 
 FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
 MONO = "ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace"
 GRAD = {'gray': ('#7c7c80', '#3a3a3c'), 'blue': ('#64d2ff', '#0a84ff'), 'violet': ('#d48cff', '#7d3bd1')}
 STATUS = {
-    'done': dict(label='Решена', color='#30d158'),
-    'draft': dict(label='Черновик', color='#ff9f0a'),
-    'soon': dict(label='Скоро', color='#98989d'),
+    'done': dict(label='Решена', label_en='Solved', color='#30d158'),
+    'draft': dict(label='Черновик', label_en='Draft', color='#ff9f0a'),
+    'soon': dict(label='Скоро', label_en='Soon', color='#98989d'),
 }
 ACMP_DIR, ACMP_TOTAL, ACMP_COLS = 'first_1000', 1000, 50
 ACMP_HEAD = re.compile(r'// acmp №(\d+) · (.+)')      # первая строка файла
@@ -205,7 +232,7 @@ def banner(total):
         '<circle cx="393" cy="53" r="12" fill="#30d158"/>'
         '<path d="M387 53.5l4 4 7.5-8" fill="none" stroke="#000000" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>'
         '<text x="416" y="59.5" font-size="18" font-weight="600" fill="#ffffff">Accepted</text>'
-        f'<text x="816" y="59.5" font-size="18" font-weight="600" fill="#30d158" text-anchor="end">решено {total}</text></g>'
+        f'<text x="816" y="59.5" font-size="18" font-weight="600" fill="#30d158" text-anchor="end">{tr(f"решено {total}", f"{total} solved")}</text></g>'
     )
     defs = (f'<linearGradient id="ai" x1="0" y1="0" x2="1" y2="1">{AI_STOPS}'
             '<animateTransform attributeName="gradientTransform" type="rotate" from="0 0.5 0.5" to="360 0.5 0.5" '
@@ -221,12 +248,13 @@ def banner(total):
         '<rect width="1200" height="600" rx="32" fill="none" stroke="url(#ai)" stroke-width="40" filter="url(#edgeGlow)" opacity="0.85"/>'
         '<rect x="1.5" y="1.5" width="1197" height="597" rx="30.5" fill="none" stroke="url(#ai)" stroke-width="3"/></g>'
         + island +
-        '<text x="600" y="206" text-anchor="middle" font-size="28" font-weight="600" fill="url(#aiText)">Олимпиадное программирование</text>'
-        '<text x="600" y="318" text-anchor="middle" font-size="104" font-weight="700" letter-spacing="-3" fill="url(#titanium)">Алтай Абдурахим</text>'
-        '<text x="600" y="392" text-anchor="middle" font-size="36" font-weight="600" fill="#86868b">Алгоритмы. Контесты. Разборы.</text>'
-        '<text x="600" y="466" text-anchor="middle" font-size="26" font-weight="500" fill="#2997ff">Смотреть решения ›</text>'
+        f'<text x="600" y="206" text-anchor="middle" font-size="28" font-weight="600" fill="url(#aiText)">{tr("Олимпиадное программирование", "Competitive programming")}</text>'
+        f'<text x="600" y="318" text-anchor="middle" font-size="104" font-weight="700" letter-spacing="-3" fill="url(#titanium)">{tr("Алтай Абдурахим", "Altay Abdurakhim")}</text>'
+        f'<text x="600" y="392" text-anchor="middle" font-size="36" font-weight="600" fill="#86868b">{tr("Алгоритмы. Контесты. Разборы.", "Algorithms. Contests. Explanations.")}</text>'
+        f'<text x="600" y="466" text-anchor="middle" font-size="26" font-weight="500" fill="#2997ff">{tr("Смотреть решения ›", "See the solutions ›")}</text>'
     )
-    write_svg('banner.svg', 1200, 600, 'Алтай Абдурахим — олимпиадное программирование', defs, body)
+    write_svg('banner.svg', 1200, 600, tr('Алтай Абдурахим — олимпиадное программирование',
+                                          'Altay Abdurakhim — competitive programming'), defs, body)
 
 
 def stats(total, from_contests, from_algorithms, from_acmp, contests, soon):
@@ -245,18 +273,18 @@ def stats(total, from_contests, from_algorithms, from_acmp, contests, soon):
                 f'calcMode="discrete" dur="0.8s" fill="freeze"/></text>')
 
     keys = soon[:3] if len(soon) <= 3 else soon[:2] + [f'+{len(soon) - 2}']
-    soon_body = '<text x="951" y="344" font-size="24" fill="#ff9f0a">Скоро</text>'
+    soon_body = f'<text x="951" y="344" font-size="24" fill="#ff9f0a">{tr("Скоро", "Soon")}</text>'
     if keys:
         for i, k in enumerate(keys):
             x = 951 + 72 * i
             soon_body += (f'<rect x="{x}" y="378" width="60" height="60" rx="16" fill="#1c1c1e" stroke="#ffffff" stroke-opacity="0.12"/>'
                           f'<text x="{x + 30}" y="419" font-size="{30 if len(k) == 1 else 22}" font-weight="700" '
                           f'fill="#f5f5f7" text-anchor="middle">{esc(k)}</text>')
-        soon_body += '<text x="951" y="490" font-size="22" fill="#86868b">в работе</text>'
+        soon_body += f'<text x="951" y="490" font-size="22" fill="#86868b">{tr("в работе", "in progress")}</text>'
     else:
-        soon_body = ('<text x="951" y="344" font-size="24" fill="#30d158">Готово</text>'
+        soon_body = (f'<text x="951" y="344" font-size="24" fill="#30d158">{tr("Готово", "Done")}</text>'
                      '<text x="951" y="440" font-size="58" font-weight="700" fill="#30d158">✓</text>'
-                     '<text x="951" y="490" font-size="22" fill="#86868b">всё решено</text>')
+                     f'<text x="951" y="490" font-size="22" fill="#86868b">{tr("всё решено", "all solved")}</text>')
 
     contest_name = (f'<text x="1152" y="170" font-size="32" font-weight="700" fill="#f5f5f7" text-anchor="end">{esc(latest["series"])}</text>'
                     f'<text x="1152" y="208" font-size="22" fill="#86868b" text-anchor="end">{esc(latest["title"])} · {latest["year"]}</text>'
@@ -271,24 +299,27 @@ def stats(total, from_contests, from_algorithms, from_acmp, contests, soon):
         '<g clip-path="url(#t1)"><rect width="590" height="540" fill="url(#tile)"/>'
         '<circle cx="470" cy="470" r="150" fill="url(#ai)" opacity="0.35" filter="url(#blur)"/></g>'
         '<rect x="0.5" y="0.5" width="589" height="539" rx="31.5" fill="none" stroke="#ffffff" stroke-opacity="0.1"/>'
-        '<text x="48" y="86" font-size="24" fill="#86868b">Решено задач</text>'
+        f'<text x="48" y="86" font-size="24" fill="#86868b">{tr("Решено задач", "Problems solved")}</text>'
         f'<g font-size="{size}" font-weight="700" letter-spacing="-10" fill="url(#ai)">{numbers}</g>'
-        f'<text x="48" y="490" font-size="22" fill="#86868b">{from_contests} — контесты  ·  {from_algorithms} — алгоритмы  ·  {from_acmp} — acmp</text>'
+        f'<text x="48" y="490" font-size="22" fill="#86868b">{from_contests} — {tr("контесты", "contests")}  ·  '
+        f'{from_algorithms} — {tr("алгоритмы", "algorithms")}  ·  {from_acmp} — acmp</text>'
         '<rect x="610.5" y="0.5" width="589" height="259" rx="31.5" fill="url(#tile)" stroke="#ffffff" stroke-opacity="0.1"/>'
-        '<text x="658" y="86" font-size="24" fill="#86868b">Контесты</text>'
+        f'<text x="658" y="86" font-size="24" fill="#86868b">{tr("Контесты", "Contests")}</text>'
         f'<text x="650" y="218" font-size="150" font-weight="700" letter-spacing="-4" fill="url(#blue)">{len(contests)}</text>'
         + contest_name +
         '<rect x="610.5" y="280.5" width="284" height="259" rx="31.5" fill="url(#tile)" stroke="#ffffff" stroke-opacity="0.1"/>'
-        '<text x="646" y="344" font-size="24" fill="#86868b">Языки</text>'
+        f'<text x="646" y="344" font-size="24" fill="#86868b">{tr("Языки", "Languages")}</text>'
         '<text x="644" y="440" font-size="58" font-weight="700" letter-spacing="-1" fill="url(#titanium)">C++17</text>'
         '<text x="646" y="490" font-size="32" fill="#86868b">Python 3</text>'
         '<rect x="915.5" y="280.5" width="284" height="259" rx="31.5" fill="url(#tile)" stroke="#ffffff" stroke-opacity="0.1"/>'
         + soon_body + '</g>'
     )
-    label = (f'Решено задач: {total} ({from_contests} с контестов, {from_algorithms} из алгоритмов, '
-             f'{from_acmp} с acmp). Контестов: {len(contests)}.')
+    label = tr(f'Решено задач: {total} ({from_contests} с контестов, {from_algorithms} из алгоритмов, '
+               f'{from_acmp} с acmp). Контестов: {len(contests)}.',
+               f'Problems solved: {total} ({from_contests} from contests, {from_algorithms} from algorithms, '
+               f'{from_acmp} from acmp). Contests: {len(contests)}.')
     if soon:
-        label += ' Скоро: ' + ', '.join(soon) + '.'
+        label += tr(' Скоро: ', ' Soon: ') + ', '.join(soon) + '.'
     write_svg('stats.svg', 1200, 540, label, defs, body)
 
 
@@ -311,16 +342,16 @@ def contest_card(c):
         chips += (f'<g>{appear}<rect x="{x:.1f}" y="196" width="{w:.1f}" height="126" rx="24" fill="{fill}" '
                   f'fill-opacity="{0.1 if done else 0.04}" stroke="{fill}" stroke-opacity="{0.45 if done else 0.12}"/>'
                   f'<text x="{x + 28:.1f}" y="262" font-size="44" font-weight="700" fill="{letter_color}">{p["letter"]}</text>{dot}'
-                  f'<text x="{x + 28:.1f}" y="300" font-size="{label_fs}" fill="{st["color"]}">{st["label"]}</text></g>')
+                  f'<text x="{x + 28:.1f}" y="300" font-size="{label_fs}" fill="{st["color"]}">{status_label(p["status"])}</text></g>')
     defs = TILE + TITANIUM + f'<linearGradient id="ai" x1="0" y1="0" x2="1" y2="0">{AI_STOPS}</linearGradient>'
     body = (
         '<rect x="0.5" y="0.5" width="1199" height="369" rx="31.5" fill="url(#tile)" stroke="#ffffff" stroke-opacity="0.1"/>'
-        f'<g font-weight="600"><text x="48" y="84" font-size="22" fill="url(#ai)">{esc(c["series"])} · {esc(c["date"])}</text>'
+        f'<g font-weight="600"><text x="48" y="84" font-size="22" fill="url(#ai)">{esc(c["series"])} · {esc(date(c["date"]))}</text>'
         f'<text x="46" y="146" font-size="54" font-weight="700" letter-spacing="-1.5" fill="url(#titanium)">{esc(c["title"])}</text>'
         f'{chips}</g>'
     )
-    summary = '; '.join(f'{p["letter"]} — {STATUS[p["status"]]["label"].lower()}' for p in probs)
-    write_svg(f'contests/{c["slug"]}/card.svg', 1200, 370, f'{c["series"]} {c["title"]}, {c["date"]}: {summary}', defs, body)
+    summary = '; '.join(f'{p["letter"]} — {status_label(p["status"]).lower()}' for p in probs)
+    write_svg(f'contests/{c["slug"]}/card.svg', 1200, 370, f'{c["series"]} {c["title"]}, {date(c["date"])}: {summary}', defs, body)
 
 
 def acmp_card(problems):
@@ -335,8 +366,9 @@ def acmp_card(problems):
         if i < ACMP_TOTAL:
             cells += (f'<rect x="{x0 + i % ACMP_COLS * pitch}" y="{y0 + i // ACMP_COLS * pitch}" width="{cell}" '
                       f'height="{cell}" rx="5" fill="{STATUS[p["status"]]["color"]}"/>')
-    latest = (f'<tspan fill="#86868b">Последняя решённая — </tspan>№{solved[-1]["id"]} · {esc(solved[-1]["name"])}'
-              if solved else '<tspan fill="#86868b">Первая задача — впереди</tspan>')
+    no = tr('№', '#')
+    latest = (f'<tspan fill="#86868b">{tr("Последняя решённая — ", "Last solved — ")}</tspan>{no}{solved[-1]["id"]} · {esc(solved[-1]["name"])}'
+              if solved else f'<tspan fill="#86868b">{tr("Первая задача — впереди", "The first problem is still ahead")}</tspan>')
     fy = y0 + grid_h + 62
     h = fy + 46
     defs = (TILE + TITANIUM + f'<linearGradient id="ai" x1="0" y1="0" x2="1" y2="0">{AI_STOPS}</linearGradient>'
@@ -344,15 +376,17 @@ def acmp_card(problems):
             f'<rect width="{cell}" height="{cell}" rx="5" fill="#ffffff" fill-opacity="0.06"/></pattern>')
     body = (
         f'<rect x="0.5" y="0.5" width="1199" height="{h - 1}" rx="31.5" fill="url(#tile)" stroke="#ffffff" stroke-opacity="0.1"/>'
-        f'<g font-weight="600"><text x="48" y="84" font-size="22" fill="url(#ai)">Задачник · №1 — №{ACMP_TOTAL}</text>'
+        f'<g font-weight="600"><text x="48" y="84" font-size="22" fill="url(#ai)">{tr("Задачник", "Problem set")} · {no}1 — {no}{ACMP_TOTAL}</text>'
         '<text x="46" y="146" font-size="54" font-weight="700" letter-spacing="-1.5" fill="url(#titanium)">acmp.ru</text>'
         f'<text x="1152" y="146" text-anchor="end"><tspan font-size="54" font-weight="700" letter-spacing="-1.5" fill="url(#ai)">{len(solved)}</tspan>'
         f'<tspan font-size="30" fill="#86868b"> / {ACMP_TOTAL}</tspan></text>'
         f'<rect x="{x0}" y="{y0}" width="{ACMP_COLS * pitch}" height="{rows * pitch}" fill="url(#cell)"/>{cells}'
         f'<text x="48" y="{fy}" font-size="22" fill="#f5f5f7">{latest}</text>'
-        f'<text x="1152" y="{fy}" font-size="22" fill="#86868b" text-anchor="end">осталось {ACMP_TOTAL - len(solved)}</text></g>'
+        f'<text x="1152" y="{fy}" font-size="22" fill="#86868b" text-anchor="end">'
+        f'{tr(f"осталось {ACMP_TOTAL - len(solved)}", f"{ACMP_TOTAL - len(solved)} left")}</text></g>'
     )
-    write_svg('first_1000.svg', 1200, h, f'Первые 1000 задач acmp.ru: решено {len(solved)} из {ACMP_TOTAL}', defs, body)
+    write_svg('first_1000.svg', 1200, h, tr(f'Первые 1000 задач acmp.ru: решено {len(solved)} из {ACMP_TOTAL}',
+                                            f'First 1000 problems on acmp.ru: {len(solved)} of {ACMP_TOTAL} solved'), defs, body)
 
 
 def algorithm_row(a):
@@ -363,13 +397,18 @@ def algorithm_row(a):
     w = 30 + 12 * len(pill)
     lang = 'C++' if a['file'].endswith('.cpp') else 'Python'
     body = (CARD_ROW.format(w=1199) + app_icon(22, 24, 84, 'ic', bars) +
-            f'<text x="128" y="61" font-size="30" font-weight="600" fill="#f5f5f7">{esc(a["name"])}</text>'
-            f'<text x="128" y="99" font-size="21" font-weight="500" fill="#86868b">{esc(a["about"])} · {lang}</text>'
+            f'<text x="128" y="61" font-size="30" font-weight="600" fill="#f5f5f7">{esc(algo_text(a, "name"))}</text>'
+            f'<text x="128" y="99" font-size="21" font-weight="500" fill="#86868b">{esc(algo_text(a, "about"))} · {lang}</text>'
             f'<rect x="{1128 - w}" y="48" width="{w}" height="36" rx="18" fill="#ffffff" fill-opacity="0.08"/>'
             f'<text x="{1128 - w / 2}" y="72" font-family="{MONO}" font-size="19" font-weight="600" fill="#f5f5f7" text-anchor="middle">{esc(pill)}</text>'
             '<path d="M1160 53l12 13-12 13" fill="none" stroke="#636366" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>')
-    write_svg(f'rows/{name}.svg', 1200, 132, f'{a["name"]} — {pill}, {lang}', TILE + grad_def('ic', 'violet'), body)
+    write_svg(f'rows/{name}.svg', 1200, 132, f'{algo_text(a, "name")} — {pill}, {lang}', TILE + grad_def('ic', 'violet'), body)
     return name
+
+
+def algo_text(a, key):
+    """Название или описание алгоритма на языке сборки; нет английского — берём русское."""
+    return a.get(f'{key}_en', a[key]) if LANG == 'en' else a[key]
 
 
 def title(name, heading, subs):
@@ -383,12 +422,14 @@ def title(name, heading, subs):
 def structure(contests):
     tree = [(0, 'olymp/', '')]
     for c in contests:
-        tree += [(1, c['slug'] + '/', ''), (2, 'statements/', 'условия задач (PDF)'),
-                 (2, 'solutions/', 'решения: A.py, B.py, …'), (2, 'tests/', 'примеры из условий'),
-                 (2, 'contest.json', 'названия, темы, разборы')]
-    tree += [(1, 'first_1000/', 'задачи acmp.ru: 0001.cpp, 0002.cpp, …'),
-             (1, 'algorithms/', 'классические алгоритмы'), (1, 'scripts/', 'сборка README и проверка решений'),
-             (1, 'assets/', 'картинки для README')]
+        tree += [(1, c['slug'] + '/', ''), (2, 'statements/', tr('условия задач (PDF)', 'problem statements (PDF)')),
+                 (2, 'solutions/', tr('решения: A.py, B.py, …', 'solutions: A.py, B.py, …')),
+                 (2, 'tests/', tr('примеры из условий', 'examples from the problems')),
+                 (2, 'contest.json', tr('названия, темы, разборы', 'names, topics, explanations'))]
+    tree += [(1, 'first_1000/', tr('задачи acmp.ru: 0001.cpp, 0002.cpp, …', 'acmp.ru problems: 0001.cpp, 0002.cpp, …')),
+             (1, 'algorithms/', tr('классические алгоритмы', 'classic algorithms')),
+             (1, 'scripts/', tr('сборка README и проверка решений', 'README build and solution checks')),
+             (1, 'assets/', tr('картинки для README', 'pictures for README'))]
     row, top, x0, ind = 46, 74, 48, 44
     h = top + row * len(tree) + 130
     defs = TILE + grad_def('folder', 'blue') + grad_def('root', 'violet') + grad_def('file', 'gray')
@@ -412,9 +453,11 @@ def structure(contests):
     body = (f'<rect x="0.5" y="0.5" width="1199" height="{h - 1}" rx="31.5" fill="url(#tile)" stroke="#ffffff" stroke-opacity="0.1"/>'
             + lines + items +
             f'<line x1="48" y1="{ny - 42}" x2="1152" y2="{ny - 42}" stroke="#ffffff" stroke-opacity="0.08"/>'
-            + rich(48, ny, 'Новый контест — новая папка `<год>-<название>/` в корне с такой же структурой', fs=20)
-            + rich(48, ny + 36, 'Статистика считается сама: при коммите решения прогоняются на примерах из условий', fs=20))
-    write_svg('structure.svg', 1200, h, 'Структура репозитория', defs, body)
+            + rich(48, ny, tr('Новый контест — новая папка `<год>-<название>/` в корне с такой же структурой',
+                              'New contest — a new folder `<year>-<name>/` in the root with the same structure'), fs=20)
+            + rich(48, ny + 36, tr('Статистика считается сама: при коммите решения прогоняются на примерах из условий',
+                                   'Stats update by themselves: on each commit, solutions run on the examples from the problems'), fs=20))
+    write_svg('structure.svg', 1200, h, tr('Структура репозитория', 'Repository structure'), defs, body)
 
 
 def terminal():
@@ -427,7 +470,7 @@ def terminal():
         [('$ ', p), ('clang++ -std=c++17 -O2 algorithms/sorting/bubble_sort_swaps.cpp -o bubble', t)],
         [('$ ', p), ('echo ', t), ('"4  4 2 3 1"', s), (' | ', op), ('./bubble', t)],
         [('5', out)], [],
-        [('# Пересобрать README вручную', com)],
+        [(tr('# Пересобрать README вручную', '# Rebuild README by hand'), com)],
         [('$ ', p), ('python3 scripts/build.py', t)],
     ]
     lh, top = 36, 122
@@ -441,7 +484,7 @@ def terminal():
         if segs:
             body += (f'<text x="48" y="{top + i * lh}" font-family="{MONO}" font-size="20" xml:space="preserve" style="white-space:pre">'
                      + ''.join(f'<tspan fill="{col}">{esc(txt)}</tspan>' for txt, col in segs) + '</text>')
-    write_svg('run.svg', 1200, h, 'Запуск решений в терминале', TILE, body)
+    write_svg('run.svg', 1200, h, tr('Запуск решений в терминале', 'Running solutions in the terminal'), TILE, body)
 
 
 def footer():
@@ -476,59 +519,73 @@ def quote():
 
 # ───────────────────────── README ─────────────────────────
 
-def section_title(anchor, name, alt):
-    return f'<a name="{anchor}"></a>\n<img src="assets/titles/{name}.svg" alt="{alt}" width="100%">\n'
+def section_title(anchor, name, alt, img):
+    return f'<a name="{anchor}"></a>\n<img src="{img}/titles/{name}.svg" alt="{alt}" width="100%">\n'
 
 
 def readme(contests, algorithms, algo_rows, acmp_solved, total):
+    img = 'assets' if LANG == 'ru' else 'assets/en'  # цитата и футер — общие, лежат в assets
+    switch = ('<p align="center"><a href="README.md">English</a> &nbsp;|&nbsp; <b>Русский</b></p>' if LANG == 'ru' else
+              '<p align="center"><b>English</b> &nbsp;|&nbsp; <a href="README.ru.md">Русский</a></p>')
     out = [
-        '<!-- Этот файл собирается автоматически: python3 scripts/build.py. Правки вручную перезапишутся. -->',
-        '<a href="#contests"><img src="assets/banner.svg" alt="Алтай Абдурахим — олимпиадное программирование" width="100%"></a>',
+        tr('<!-- Этот файл собирается автоматически: python3 scripts/build.py. Правки вручную перезапишутся. -->',
+           '<!-- This file is built automatically: python3 scripts/build.py. Edits by hand will be lost. -->'),
+        switch,
         '',
-        '<p align="center">\n  <a href="#contests">Контесты&nbsp;›</a>&emsp;\n  <a href="#first-1000">Первые 1000&nbsp;›</a>&emsp;\n'
-        '  <a href="#algorithms">Алгоритмы&nbsp;›</a>&emsp;\n  <a href="#structure">Структура&nbsp;›</a>&emsp;\n'
-        '  <a href="#run">Запуск&nbsp;›</a>\n</p>',
+        f'<a href="#contests"><img src="{img}/banner.svg" alt="'
+        f'{tr("Алтай Абдурахим — олимпиадное программирование", "Altay Abdurakhim — competitive programming")}" width="100%"></a>',
+        '',
+        f'<p align="center">\n  <a href="#contests">{tr("Контесты", "Contests")}&nbsp;›</a>&emsp;\n'
+        f'  <a href="#first-1000">{tr("Первые 1000", "First 1000")}&nbsp;›</a>&emsp;\n'
+        f'  <a href="#algorithms">{tr("Алгоритмы", "Algorithms")}&nbsp;›</a>&emsp;\n'
+        f'  <a href="#structure">{tr("Структура", "Structure")}&nbsp;›</a>&emsp;\n'
+        f'  <a href="#run">{tr("Запуск", "Run")}&nbsp;›</a>\n</p>',
         '', '<br>', '',
-        f'<img src="assets/stats.svg" alt="Решено задач: {total}" width="100%">',
+        f'<img src="{img}/stats.svg" alt="{tr("Решено задач", "Problems solved")}: {total}" width="100%">',
         '', '<br>\n<br>', '',
         '<img src="assets/quote.svg" alt="Talk is cheap. Show me the code. — Linus Torvalds" width="100%">',
         '', '<br>', '',
-        section_title('contests', 'contests', 'Контесты'),
+        section_title('contests', 'contests', tr('Контесты', 'Contests'), img),
     ]
     for c in contests:
-        out.append(f'<a href="{c["slug"]}"><img src="assets/contests/{c["slug"]}/card.svg" '
-                   f'alt="{esc(c["series"])} {esc(c["title"])}, {esc(c["date"])}" width="100%"></a>\n')
+        out.append(f'<a href="{c["slug"]}"><img src="{img}/contests/{c["slug"]}/card.svg" '
+                   f'alt="{esc(c["series"])} {esc(c["title"])}, {esc(date(c["date"]))}" width="100%"></a>\n')
     out += ['<br>\n<br>\n',
-            section_title('first-1000', 'first_1000', 'Первые 1000'),
-            f'<a href="{ACMP_DIR}"><img src="assets/first_1000.svg" alt="Первые 1000 задач acmp.ru: '
-            f'решено {acmp_solved} из {ACMP_TOTAL}" width="100%"></a>\n',
+            section_title('first-1000', 'first_1000', tr('Первые 1000', 'First 1000'), img),
+            f'<a href="{ACMP_DIR}"><img src="{img}/first_1000.svg" alt="'
+            + tr(f'Первые 1000 задач acmp.ru: решено {acmp_solved} из {ACMP_TOTAL}',
+                 f'First 1000 problems on acmp.ru: {acmp_solved} of {ACMP_TOTAL} solved')
+            + '" width="100%"></a>\n',
             '<br>\n<br>\n']
-    out.append(section_title('algorithms', 'algorithms', 'Алгоритмы'))
+    out.append(section_title('algorithms', 'algorithms', tr('Алгоритмы', 'Algorithms'), img))
     for a, name in zip(algorithms, algo_rows):
-        out.append(f'<a href="algorithms/{a["file"]}"><img src="assets/rows/{name}.svg" '
-                   f'alt="{esc(a["name"])} — {esc(a["complexity"])}" width="100%"></a>')
+        out.append(f'<a href="algorithms/{a["file"]}"><img src="{img}/rows/{name}.svg" '
+                   f'alt="{esc(algo_text(a, "name"))} — {esc(a["complexity"])}" width="100%"></a>')
     out += ['', '<br>\n<br>', '',
-            section_title('structure', 'structure', 'Структура'),
-            '<img src="assets/structure.svg" alt="Структура репозитория" width="100%">',
+            section_title('structure', 'structure', tr('Структура', 'Structure'), img),
+            f'<img src="{img}/structure.svg" alt="{tr("Структура репозитория", "Repository structure")}" width="100%">',
             '', '<br>\n<br>', '',
-            section_title('run', 'run', 'Запуск'),
-            '<img src="assets/run.svg" alt="Запуск решений в терминале" width="100%">',
+            section_title('run', 'run', tr('Запуск', 'Run'), img),
+            f'<img src="{img}/run.svg" alt="{tr("Запуск решений в терминале", "Running solutions in the terminal")}" width="100%">',
             '',
-            '<details>\n<summary>Скопировать команды</summary>\n<br>\n\n```bash\n# Python\n'
+            f'<details>\n<summary>{tr("Скопировать команды", "Copy the commands")}</summary>\n<br>\n\n```bash\n# Python\n'
             'python3 2026-icpc-qual/solutions/D.py <<< 34\n# 8 15\n\n# C++\n'
             'clang++ -std=c++17 -O2 algorithms/sorting/bubble_sort_swaps.cpp -o bubble\necho "4  4 2 3 1" | ./bubble\n# 5\n\n'
-            '# Пересобрать README вручную\npython3 scripts/build.py\n```\n\n</details>',
+            f'{tr("# Пересобрать README вручную", "# Rebuild README by hand")}\npython3 scripts/build.py\n```\n\n</details>',
             '', '<br>', '',
             '<img src="assets/footer.svg" alt="Stay hungry. Stay foolish. — Steve Jobs, 1955–2011" width="100%">',
             '',
-            '<p align="center">\n  <sub>Сделано с ☕ и <code>-O2</code> &nbsp;·&nbsp; '
+            f'<p align="center">\n  <sub>{tr("Сделано с ☕ и", "Made with ☕ and")} <code>-O2</code> &nbsp;·&nbsp; '
             f'<a href="{REPO_URL}">@a1tvv</a></sub>\n</p>', '']
-    with open(os.path.join(ROOT, 'README.md'), 'w') as f:
+    with open(os.path.join(ROOT, 'README.ru.md' if LANG == 'ru' else 'README.md'), 'w') as f:
         f.write('\n'.join(out))
 
 
-def main():
-    contests, algorithms, acmp = load()
+def build(lang, contests, algorithms, acmp):
+    """Рисует картинки и README на одном языке: 'ru' — assets и README.ru.md, 'en' — assets/en и README.md."""
+    global LANG, ASSETS
+    LANG = lang
+    ASSETS = os.path.join(ROOT, 'assets') if lang == 'ru' else os.path.join(ROOT, 'assets', 'en')
     for sub in ('contests', 'rows', 'titles'):  # сгенерированные папки пересоздаём, чтобы не копился мусор
         shutil.rmtree(os.path.join(ASSETS, sub), ignore_errors=True)
 
@@ -543,18 +600,29 @@ def main():
         contest_card(c)
     acmp_card(acmp)
     algo_rows = [algorithm_row(a) for a in algorithms]
-    title('contests', 'Контесты', ['Нажми на карточку — откроются условия и решения.',
-                                   '«Решена» — проходит все примеры из условия, проверяется автоматически.'])
-    title('first_1000', 'Первые 1000', ['Задачи acmp.ru по порядку — от №1 до №1000.',
-                                        'Каждая клетка — задача, зелёная — решена.'])
-    title('algorithms', 'Алгоритмы', ['Классика, написанная своими руками.'])
-    title('structure', 'Структура', ['Всё на своих местах.'])
-    title('run', 'Запуск', ['Скопировал. Запустил. Готово.'])
+    title('contests', tr('Контесты', 'Contests'),
+          [tr('Нажми на карточку — откроются условия и решения.', 'Click a card to open the problems and solutions.'),
+           tr('«Решена» — проходит все примеры из условия, проверяется автоматически.',
+              '“Solved” means it passes all examples from the problem. This is checked automatically.')])
+    title('first_1000', tr('Первые 1000', 'First 1000'),
+          [tr('Задачи acmp.ru по порядку — от №1 до №1000.', 'acmp.ru problems in order — from #1 to #1000.'),
+           tr('Каждая клетка — задача, зелёная — решена.', 'Each cell is a problem. Green means solved.')])
+    title('algorithms', tr('Алгоритмы', 'Algorithms'), [tr('Классика, написанная своими руками.', 'Classic algorithms, written by hand.')])
+    title('structure', tr('Структура', 'Structure'), [tr('Всё на своих местах.', 'Everything in its place.')])
+    title('run', tr('Запуск', 'Run'), [tr('Скопировал. Запустил. Готово.', 'Copy. Run. Done.')])
     structure(contests)
     terminal()
-    quote()
-    footer()
+    if lang == 'ru':  # в цитате и футере нет русского текста — они общие для обеих версий
+        quote()
+        footer()
     readme(contests, algorithms, algo_rows, from_acmp, total)
+    return from_contests, from_acmp, total
+
+
+def main():
+    contests, algorithms, acmp = load()
+    build('ru', contests, algorithms, acmp)
+    from_contests, from_acmp, total = build('en', contests, algorithms, acmp)
 
     for c in contests:
         print(c['slug'] + ': ' + '  '.join(f'{p["letter"]}={STATUS[p["status"]]["label"]}' for p in c['problems']))
