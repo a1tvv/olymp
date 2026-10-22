@@ -16,10 +16,7 @@
 <br>
 <br>
 
-<p align="center">
-  <i>«Talk is cheap. Show me the code.»</i><br>
-  <sub>— Linus Torvalds</sub>
-</p>
+<img src="assets/quote.svg" alt="Talk is cheap. Show me the code. — Linus Torvalds" width="100%">
 
 <br>
 
