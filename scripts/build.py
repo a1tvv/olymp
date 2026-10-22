@@ -131,7 +131,7 @@ def load_acmp(workdir):
 def load():
     contests = []
     with tempfile.TemporaryDirectory() as workdir:
-        for path in sorted(glob.glob(os.path.join(ROOT, 'contests', '*', 'contest.json')), reverse=True):
+        for path in sorted(glob.glob(os.path.join(ROOT, '*', 'contest.json')), reverse=True):
             cdir = os.path.dirname(path)
             with open(path) as f:
                 contest = json.load(f)
@@ -381,11 +381,10 @@ def title(name, heading, subs):
 
 def structure(contests):
     tree = [(0, 'olymp/', '')]
-    tree.append((1, 'contests/', ''))
     for c in contests:
-        tree += [(2, c['slug'] + '/', ''), (3, 'statements/', 'условия задач (PDF)'),
-                 (3, 'solutions/', 'решения: A.py, B.py, …'), (3, 'tests/', 'примеры из условий'),
-                 (3, 'contest.json', 'названия, темы, разборы')]
+        tree += [(1, c['slug'] + '/', ''), (2, 'statements/', 'условия задач (PDF)'),
+                 (2, 'solutions/', 'решения: A.py, B.py, …'), (2, 'tests/', 'примеры из условий'),
+                 (2, 'contest.json', 'названия, темы, разборы')]
     tree += [(1, 'first_1000/', 'задачи acmp.ru: 0001.cpp, 0002.cpp, …'),
              (1, 'algorithms/', 'классические алгоритмы'), (1, 'scripts/', 'сборка README и проверка решений'),
              (1, 'assets/', 'картинки для README')]
@@ -412,7 +411,7 @@ def structure(contests):
     body = (f'<rect x="0.5" y="0.5" width="1199" height="{h - 1}" rx="31.5" fill="url(#tile)" stroke="#ffffff" stroke-opacity="0.1"/>'
             + lines + items +
             f'<line x1="48" y1="{ny - 42}" x2="1152" y2="{ny - 42}" stroke="#ffffff" stroke-opacity="0.08"/>'
-            + rich(48, ny, 'Новый контест — новая папка `contests/<год>-<название>/` с такой же структурой', fs=20)
+            + rich(48, ny, 'Новый контест — новая папка `<год>-<название>/` в корне с такой же структурой', fs=20)
             + rich(48, ny + 36, 'Статистика считается сама: при коммите решения прогоняются на примерах из условий', fs=20))
     write_svg('structure.svg', 1200, h, 'Структура репозитория', defs, body)
 
@@ -421,7 +420,7 @@ def terminal():
     p, t, op, s, com, out = '#30d158', '#f5f5f7', '#ff375f', '#ffd60a', '#636366', '#64d2ff'
     lines = [
         [('# Python', com)],
-        [('$ ', p), ('python3 contests/2026-icpc-qual/solutions/D.py ', t), ('<<<', op), (' 34', t)],
+        [('$ ', p), ('python3 2026-icpc-qual/solutions/D.py ', t), ('<<<', op), (' 34', t)],
         [('8 15', out)], [],
         [('# C++', com)],
         [('$ ', p), ('clang++ -std=c++17 -O2 algorithms/sorting/bubble_sort_swaps.cpp -o bubble', t)],
@@ -496,7 +495,7 @@ def readme(contests, algorithms, algo_rows, acmp_solved, total):
         section_title('contests', 'contests', 'Контесты'),
     ]
     for c in contests:
-        out.append(f'<a href="contests/{c["slug"]}"><img src="assets/contests/{c["slug"]}/card.svg" '
+        out.append(f'<a href="{c["slug"]}"><img src="assets/contests/{c["slug"]}/card.svg" '
                    f'alt="{esc(c["series"])} {esc(c["title"])}, {esc(c["date"])}" width="100%"></a>\n')
     out += ['<br>\n<br>\n',
             section_title('first-1000', 'first_1000', 'Первые 1000'),
@@ -515,7 +514,7 @@ def readme(contests, algorithms, algo_rows, acmp_solved, total):
             '<img src="assets/run.svg" alt="Запуск решений в терминале" width="100%">',
             '',
             '<details>\n<summary>Скопировать команды</summary>\n<br>\n\n```bash\n# Python\n'
-            'python3 contests/2026-icpc-qual/solutions/D.py <<< 34\n# 8 15\n\n# C++\n'
+            'python3 2026-icpc-qual/solutions/D.py <<< 34\n# 8 15\n\n# C++\n'
             'clang++ -std=c++17 -O2 algorithms/sorting/bubble_sort_swaps.cpp -o bubble\necho "4  4 2 3 1" | ./bubble\n# 5\n\n'
             '# Пересобрать README вручную\npython3 scripts/build.py\n```\n\n</details>',
             '', '<br>', '',

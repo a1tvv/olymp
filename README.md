@@ -23,7 +23,7 @@
 <a name="contests"></a>
 <img src="assets/titles/contests.svg" alt="Контесты" width="100%">
 
-<a href="contests/2026-icpc-qual"><img src="assets/contests/2026-icpc-qual/card.svg" alt="ICPC NERC Kyrgyzstan Qualification, 3 октября 2026" width="100%"></a>
+<a href="2026-icpc-qual"><img src="assets/contests/2026-icpc-qual/card.svg" alt="ICPC NERC Kyrgyzstan Qualification, 3 октября 2026" width="100%"></a>
 
 <br>
 <br>
@@ -64,7 +64,7 @@
 
 ```bash
 # Python
-python3 contests/2026-icpc-qual/solutions/D.py <<< 34
+python3 2026-icpc-qual/solutions/D.py <<< 34
 # 8 15
 
 # C++
