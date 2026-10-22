@@ -33,7 +33,7 @@ STATUS = {
 }
 ACMP_DIR, ACMP_TOTAL, ACMP_COLS = 'first_1000', 1000, 50
 ACMP_HEAD = re.compile(r'// acmp №(\d+) · (.+)')      # первая строка файла
-ACMP_EXAMPLE = re.compile(r'//\s{2,}(.+?)\s+→\s+(.+)')  # «//   2 3 → 5» в шапке
+ACMP_EXAMPLE = re.compile(r'//\s{2,}(.+?)\s+→\s+(.+)')  # «//   2 3 → 5» в шапке; « / » — новая строка
 AI_STOPS = ('<stop offset="0" stop-color="#ff9f0a"/><stop offset="0.35" stop-color="#ff375f"/>'
             '<stop offset="0.7" stop-color="#bf5af2"/><stop offset="1" stop-color="#0a84ff"/>')
 TILE = ('<linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">'
@@ -121,7 +121,8 @@ def load_acmp(workdir):
         head = ACMP_HEAD.fullmatch(lines[0]) if lines else None
         if not head:
             continue
-        examples = [m.groups() for m in map(ACMP_EXAMPLE.fullmatch, lines) if m]
+        examples = [(m[1].replace(' / ', '\n'), m[2].replace(' / ', '\n'))
+                    for m in map(ACMP_EXAMPLE.fullmatch, lines) if m]
         cmd = command(path, workdir)
         ok = cmd and examples and all(passes(cmd, data, out) for data, out in examples)
         problems.append(dict(id=int(head[1]), name=head[2], status='done' if ok else 'draft'))
