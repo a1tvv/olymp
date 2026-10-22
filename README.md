@@ -11,7 +11,7 @@
 
 <br>
 
-<img src="assets/stats.svg" alt="Решено задач: 8" width="100%">
+<img src="assets/stats.svg" alt="Решено задач: 9" width="100%">
 
 <br>
 <br>
@@ -31,7 +31,7 @@
 <a name="first-1000"></a>
 <img src="assets/titles/first_1000.svg" alt="Первые 1000" width="100%">
 
-<a href="first_1000"><img src="assets/first_1000.svg" alt="Первые 1000 задач acmp.ru: решено 2 из 1000" width="100%"></a>
+<a href="first_1000"><img src="assets/first_1000.svg" alt="Первые 1000 задач acmp.ru: решено 3 из 1000" width="100%"></a>
 
 <br>
 <br>
