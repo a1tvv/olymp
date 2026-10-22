@@ -443,17 +443,16 @@ def footer():
 
 
 def quote():
-    defs = (TITANIUM + '<linearGradient id="code" x1="0" y1="0" x2="1" y2="0">'
-            '<stop offset="0" stop-color="#30d158"/><stop offset="0.5" stop-color="#64d2ff"/><stop offset="1" stop-color="#0a84ff"/>'
+    defs = (TITANIUM + f'<linearGradient id="ai" x1="0" y1="0" x2="1" y2="0">{AI_STOPS}'
             '<animateTransform attributeName="gradientTransform" type="translate" values="-0.3 0;0.3 0;-0.3 0" dur="8s" repeatCount="indefinite"/>'
-            '</linearGradient><radialGradient id="spot" cx="0.5" cy="1" r="0.7"><stop offset="0" stop-color="#30d158" stop-opacity="0.18"/>'
-            '<stop offset="1" stop-color="#30d158" stop-opacity="0"/></radialGradient>'
+            '</linearGradient><radialGradient id="spot" cx="0.5" cy="1" r="0.7"><stop offset="0" stop-color="#bf5af2" stop-opacity="0.22"/>'
+            '<stop offset="1" stop-color="#bf5af2" stop-opacity="0"/></radialGradient>'
             '<clipPath id="card"><rect width="1200" height="380" rx="32"/></clipPath>')
     body = ('<g clip-path="url(#card)"><rect width="1200" height="380" fill="#000000"/><rect width="1200" height="380" fill="url(#spot)"/></g>'
             '<rect x="0.5" y="0.5" width="1199" height="379" rx="31.5" fill="none" stroke="#ffffff" stroke-opacity="0.1"/>'
             '<g font-weight="700" text-anchor="middle">'
             '<text x="600" y="160" font-size="96" letter-spacing="-3" fill="url(#titanium)">Talk is cheap.</text>'
-            '<text x="600" y="262" font-size="96" letter-spacing="-3" fill="url(#code)">Show me the code.</text>'
+            '<text x="600" y="262" font-size="96" letter-spacing="-3" fill="url(#ai)">Show me the code.</text>'
             '<text x="600" y="326" font-size="22" font-weight="600" fill="#86868b">Linus Torvalds · LKML, 2000</text></g>')
     write_svg('quote.svg', 1200, 380, 'Talk is cheap. Show me the code. — Linus Torvalds', defs, body)
 
