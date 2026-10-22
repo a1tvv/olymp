@@ -11,7 +11,7 @@
 
 <br>
 
-<img src="assets/stats.svg" alt="Решено задач: 5" width="100%">
+<img src="assets/stats.svg" alt="Решено задач: 6" width="100%">
 
 <br>
 <br>
@@ -26,15 +26,15 @@
 <a name="contests"></a>
 <img src="assets/titles/contests.svg" alt="Контесты" width="100%">
 
-<a href="contests/2026-icpc-kyrgyzstan-qual/statements"><img src="assets/contests/2026-icpc-kyrgyzstan-qual/card.svg" alt="ICPC NERC Kyrgyzstan Qualification, 3 октября 2026" width="100%"></a>
+<a href="contests/2026-icpc-qual/statements"><img src="assets/contests/2026-icpc-qual/card.svg" alt="ICPC NERC Kyrgyzstan Qualification, 3 октября 2026" width="100%"></a>
 
 <p>
-<a href="contests/2026-icpc-kyrgyzstan-qual/statements/A.pdf"><img src="assets/contests/2026-icpc-kyrgyzstan-qual/A.svg" alt="A · Немного истории — Решена" width="79%"></a><a href="contests/2026-icpc-kyrgyzstan-qual/solutions/A.py"><img src="assets/rows/btn-python.svg" alt="Код A" width="20%"></a><br>
-<a href="contests/2026-icpc-kyrgyzstan-qual/statements/B.pdf"><img src="assets/contests/2026-icpc-kyrgyzstan-qual/B.svg" alt="B · Ответственная стирка — Решена" width="79%"></a><a href="contests/2026-icpc-kyrgyzstan-qual/solutions/B.py"><img src="assets/rows/btn-python.svg" alt="Код B" width="20%"></a><br>
-<a href="contests/2026-icpc-kyrgyzstan-qual/statements/C.pdf"><img src="assets/contests/2026-icpc-kyrgyzstan-qual/C.svg" alt="C · Сизифов труд — Черновик" width="79%"></a><a href="contests/2026-icpc-kyrgyzstan-qual/solutions/C.py"><img src="assets/rows/btn-python.svg" alt="Код C" width="20%"></a><br>
-<a href="contests/2026-icpc-kyrgyzstan-qual/statements/D.pdf"><img src="assets/contests/2026-icpc-kyrgyzstan-qual/D.svg" alt="D · Чат-бот на калькуляторе — Решена" width="79%"></a><a href="contests/2026-icpc-kyrgyzstan-qual/solutions/D.py"><img src="assets/rows/btn-python.svg" alt="Код D" width="20%"></a><br>
-<a href="contests/2026-icpc-kyrgyzstan-qual/statements/E.pdf"><img src="assets/contests/2026-icpc-kyrgyzstan-qual/E.svg" alt="E · Сортировка вставками — Скоро" width="79%"></a><a href="contests/2026-icpc-kyrgyzstan-qual/statements/E.pdf"><img src="assets/rows/btn-soon.svg" alt="Скоро" width="20%"></a><br>
-<a href="contests/2026-icpc-kyrgyzstan-qual/statements/H.pdf"><img src="assets/contests/2026-icpc-kyrgyzstan-qual/H.svg" alt="H · Каждому префиксу по медиане! — Скоро" width="79%"></a><a href="contests/2026-icpc-kyrgyzstan-qual/statements/H.pdf"><img src="assets/rows/btn-soon.svg" alt="Скоро" width="20%"></a><br>
+<a href="contests/2026-icpc-qual/statements/A.pdf"><img src="assets/contests/2026-icpc-qual/A.svg" alt="A · Немного истории — Решена" width="79%"></a><a href="contests/2026-icpc-qual/solutions/A.py"><img src="assets/rows/btn-python.svg" alt="Код A" width="20%"></a><br>
+<a href="contests/2026-icpc-qual/statements/B.pdf"><img src="assets/contests/2026-icpc-qual/B.svg" alt="B · Ответственная стирка — Решена" width="79%"></a><a href="contests/2026-icpc-qual/solutions/B.py"><img src="assets/rows/btn-python.svg" alt="Код B" width="20%"></a><br>
+<a href="contests/2026-icpc-qual/statements/C.pdf"><img src="assets/contests/2026-icpc-qual/C.svg" alt="C · Сизифов труд — Черновик" width="79%"></a><a href="contests/2026-icpc-qual/solutions/C.py"><img src="assets/rows/btn-python.svg" alt="Код C" width="20%"></a><br>
+<a href="contests/2026-icpc-qual/statements/D.pdf"><img src="assets/contests/2026-icpc-qual/D.svg" alt="D · Чат-бот на калькуляторе — Решена" width="79%"></a><a href="contests/2026-icpc-qual/solutions/D.py"><img src="assets/rows/btn-python.svg" alt="Код D" width="20%"></a><br>
+<a href="contests/2026-icpc-qual/statements/E.pdf"><img src="assets/contests/2026-icpc-qual/E.svg" alt="E · Сортировка вставками — Решена" width="79%"></a><a href="contests/2026-icpc-qual/solutions/E.cpp"><img src="assets/rows/btn-cpp.svg" alt="Код E" width="20%"></a><br>
+<a href="contests/2026-icpc-qual/statements/H.pdf"><img src="assets/contests/2026-icpc-qual/H.svg" alt="H · Каждому префиксу по медиане! — Скоро" width="79%"></a><a href="contests/2026-icpc-qual/statements/H.pdf"><img src="assets/rows/btn-soon.svg" alt="Скоро" width="20%"></a><br>
 </p>
 
 <br>
@@ -42,7 +42,7 @@
 <a name="editorials"></a>
 <img src="assets/titles/editorials.svg" alt="Разборы" width="100%">
 
-<img src="assets/contests/2026-icpc-kyrgyzstan-qual/editorials.svg" alt="A: ICPC Regional — каждый год с 2005-го; ICPC Qual — с 2019-го, кроме 2020 и 2021; School Regional и School Qual — в 2026-м; Хватает трёх условий на год B: Все носки — одна стирка; Яркие цвета и белый — каждый отдельно,; тёмные (чёрный, синий, серый) — вместе; Майки — одна стирка на цветовую группу; Кофты и штаны — ⌈k/2⌉ стирок на группу C: Позиция после k-го дня:; f(k) = k·A − B·k(k−1)/2; Растёт, пока k·B &lt; A, поэтому; максимум при k = ⌈A/B⌉ — за O(1); Осталось читать Q пар вместо одной D: Перебираем все числа от 0 до N; Обычный вид: цифры ⊆ {0,1,5,8}; Перевёрнутый: цифры ⊆ {0,1,3,5,7,8}; N ≤ 123 456 — перебор с запасом" width="100%">
+<img src="assets/contests/2026-icpc-qual/editorials.svg" alt="A: ICPC Regional — каждый год с 2005-го; ICPC Qual — с 2019-го, кроме 2020 и 2021; School Regional и School Qual — в 2026-м; Хватает трёх условий на год B: Все носки — одна стирка; Яркие цвета и белый — каждый отдельно,; тёмные (чёрный, синий, серый) — вместе; Майки — одна стирка на цветовую группу; Кофты и штаны — ⌈k/2⌉ стирок на группу C: Позиция после k-го дня:; f(k) = k·A − B·k(k−1)/2; Растёт, пока k·B &lt; A, поэтому; максимум при k = ⌈A/B⌉ — за O(1); Осталось читать Q пар вместо одной D: Перебираем все числа от 0 до N; Обычный вид: цифры ⊆ {0,1,5,8}; Перевёрнутый: цифры ⊆ {0,1,3,5,7,8}; N ≤ 123 456 — перебор с запасом" width="100%">
 
 <br>
 <br>
@@ -75,7 +75,7 @@
 
 ```bash
 # Python
-python3 contests/2026-icpc-kyrgyzstan-qual/solutions/D.py <<< 34
+python3 contests/2026-icpc-qual/solutions/D.py <<< 34
 # 8 15
 
 # C++

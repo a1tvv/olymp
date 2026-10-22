@@ -404,7 +404,7 @@ def terminal():
     p, t, op, s, com, out = '#30d158', '#f5f5f7', '#ff375f', '#ffd60a', '#636366', '#64d2ff'
     lines = [
         [('# Python', com)],
-        [('$ ', p), ('python3 contests/2026-icpc-kyrgyzstan-qual/solutions/D.py ', t), ('<<<', op), (' 34', t)],
+        [('$ ', p), ('python3 contests/2026-icpc-qual/solutions/D.py ', t), ('<<<', op), (' 34', t)],
         [('8 15', out)], [],
         [('# C++', com)],
         [('$ ', p), ('clang++ -std=c++17 -O2 algorithms/sorting/bubble_sort_swaps.cpp -o bubble', t)],
@@ -500,7 +500,7 @@ def readme(contests, algorithms, algo_rows, total, has_editorials):
             '<img src="assets/run.svg" alt="Запуск решений в терминале" width="100%">',
             '',
             '<details>\n<summary>Скопировать команды</summary>\n<br>\n\n```bash\n# Python\n'
-            'python3 contests/2026-icpc-kyrgyzstan-qual/solutions/D.py <<< 34\n# 8 15\n\n# C++\n'
+            'python3 contests/2026-icpc-qual/solutions/D.py <<< 34\n# 8 15\n\n# C++\n'
             'clang++ -std=c++17 -O2 algorithms/sorting/bubble_sort_swaps.cpp -o bubble\necho "4  4 2 3 1" | ./bubble\n# 5\n\n'
             '# Пересобрать README вручную\npython3 scripts/build.py\n```\n\n</details>',
             '', '<br>', '',
