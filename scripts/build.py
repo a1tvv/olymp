@@ -407,7 +407,7 @@ def plural_days(n):
 def flame(right, bottom, streak):
     """Огонёк серии: чем длиннее серия — тем желтее (со 100-го дня фиолетовый), чем больше коммитов — тем крупнее.
     Ставится правым краем к right. Возвращает (defs, рисунок, центр, левый край, цвет подписи)."""
-    h = 48 + 24 * min(1, math.log(1 + streak['commits']) / math.log(501))
+    h = 28 + 12 * min(1, math.log(1 + streak['commits']) / math.log(501))
     s = h / 128
     cx = right - 41 * s  # видимая ширина рисунка — 82 из 100
     if streak['gray']:
@@ -436,7 +436,7 @@ def flame(right, bottom, streak):
 
 def acmp_card(problems, streak):
     """Сетка из 1000 клеток — по одной на задачу acmp №1…№1000; решённые горят зелёным.
-    Справа сверху — счётчик решённых и огонёк серии между числом и «/ 1000»."""
+    В правом верхнем углу — огонёк серии «N дней подряд», под ним счётчик решённых."""
     solved = [p for p in problems if p['status'] == 'done']
     pitch, cell, x0, y0 = 22, 18, 52, 196
     rows = ACMP_TOTAL // ACMP_COLS
@@ -452,15 +452,11 @@ def acmp_card(problems, streak):
               if solved else f'<tspan fill="#86868b">{tr("Первая задача — впереди", "The first problem is still ahead")}</tspan>')
     fy = y0 + grid_h + 62
     h = fy + 46
-    # справа налево: «/ 1000» фиксированной ширины, огонёк с подписью «N дней», число решённых
-    total_w = 92
-    x = 1152 - total_w - 12
     flame_defs = flame_body = ''
-    if streak:
-        flame_defs, flame_body, cx, left, color = flame(x - 4, 150, streak)
-        flame_body += (f'<text x="{cx:.1f}" y="182" font-size="18" fill="{color}" text-anchor="middle">'
-                       f'{plural_days(streak["days"])}</text>')
-        x = left - 10
+    if streak:  # огонёк у правого края, подпись «N дней подряд» слева от него
+        flame_defs, flame_body, _, left, color = flame(1152, 91, streak)
+        flame_body += (f'<text x="{left - 8:.1f}" y="84" font-size="22" fill="{color}" text-anchor="end">'
+                       f'{plural_days(streak["days"])} {tr("подряд", "in a row")}</text>')
     label = tr(f'Первые 1000 задач acmp.ru: решено {len(solved)} из {ACMP_TOTAL}',
                f'First 1000 problems on acmp.ru: {len(solved)} of {ACMP_TOTAL} solved')
     if streak:
@@ -472,9 +468,8 @@ def acmp_card(problems, streak):
         f'<rect x="0.5" y="0.5" width="1199" height="{h - 1}" rx="31.5" fill="url(#tile)" stroke="#ffffff" stroke-opacity="0.1"/>'
         f'<g font-weight="600"><text x="48" y="84" font-size="22" fill="url(#ai)">{tr("Задачник", "Problem set")} · {no}1 — {no}{ACMP_TOTAL}</text>'
         '<text x="46" y="146" font-size="54" font-weight="700" letter-spacing="-1.5" fill="url(#titanium)">acmp.ru</text>'
-        f'<text x="{x:.1f}" y="146" text-anchor="end" font-size="54" font-weight="700" letter-spacing="-1.5" fill="url(#ai)">{len(solved)}</text>'
-        f'{flame_body}'
-        f'<text x="1152" y="146" text-anchor="end" font-size="30" fill="#86868b" textLength="{total_w}" lengthAdjust="spacing">/ {ACMP_TOTAL}</text>'
+        f'<text x="1152" y="146" text-anchor="end"><tspan font-size="54" font-weight="700" letter-spacing="-1.5" fill="url(#ai)">{len(solved)}</tspan>'
+        f'<tspan font-size="30" fill="#86868b"> / {ACMP_TOTAL}</tspan></text>{flame_body}'
         f'<rect x="{x0}" y="{y0}" width="{ACMP_COLS * pitch}" height="{rows * pitch}" fill="url(#cell)"/>{cells}'
         f'<text x="48" y="{fy}" font-size="22" fill="#f5f5f7">{latest}</text>'
         f'<text x="1152" y="{fy}" font-size="22" fill="#86868b" text-anchor="end">'
