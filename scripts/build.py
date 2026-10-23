@@ -25,10 +25,13 @@ import sys
 import tempfile
 from collections import Counter
 from datetime import datetime, timedelta, timezone
+from string import Template
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS = os.path.join(ROOT, 'assets')
 REPO_URL = 'https://github.com/a1tvv'
+OLYMP_URL = 'https://github.com/a1tvv/olymp'
+PAGES_URL = 'https://a1tvv.github.io/olymp/'  # живая сетка «Первые 1000»: GitHub Pages из папки docs/
 TIME_LIMIT = 10  # секунд на один пример: с запасом, CI-машины бывают медленными
 LANG = 'ru'
 
@@ -163,7 +166,7 @@ def load_acmp(workdir):
                     for m in map(ACMP_EXAMPLE.fullmatch, lines) if m]
         cmd = command(path, workdir)
         ok = cmd and examples and all(passes(cmd, data, out) for data, out in examples)
-        problems.append(dict(id=int(head[1]), name=head[2], level=level, status='done' if ok else 'draft'))
+        problems.append(dict(id=int(head[1]), name=head[2], level=level, file=name, status='done' if ok else 'draft'))
     return sorted(problems, key=lambda p: p['id'])
 
 
@@ -438,6 +441,13 @@ def flame(right, bottom, streak):
     return defs, body, cx, cx - 41 * s, '#8e8e93' if streak['gray'] else top
 
 
+def cell_color(p):
+    """Цвет клетки задачи: решённая — зелёный по сложности (нет сложности — средний), черновик — оранжевый."""
+    if p['status'] != 'done':
+        return STATUS[p['status']]['color']
+    return next(c for limit, c in ACMP_GREENS if (p['level'] or 20) < limit)
+
+
 def acmp_card(problems, streak):
     """Сетка из 1000 клеток — по одной на задачу acmp №1…№1000; решённые горят зелёным.
     В правом верхнем углу — огонёк серии «N дней подряд», под ним счётчик решённых."""
@@ -450,11 +460,8 @@ def acmp_card(problems, streak):
     for p in problems:
         i = p['id'] - 1
         if i < ACMP_TOTAL:
-            fill = STATUS[p['status']]['color']
-            if p['status'] == 'done':
-                fill = next(c for limit, c in ACMP_GREENS if (p['level'] or 20) < limit)  # нет сложности — средний
             cells += (f'<rect x="{x0 + i % ACMP_COLS * pitch:.1f}" y="{y0 + i // ACMP_COLS * pitch:.1f}" width="{cell}" '
-                      f'height="{cell}" rx="6" fill="{fill}"/>')
+                      f'height="{cell}" rx="6" fill="{cell_color(p)}"/>')
     no = tr('№', '#')
     latest = (f'<tspan fill="#86868b">{tr("Последняя решённая — ", "Last solved — ")}</tspan>{no}{solved[-1]["id"]} · {esc(solved[-1]["name"])}'
               if solved else f'<tspan fill="#86868b">{tr("Первая задача — впереди", "The first problem is still ahead")}</tspan>')
@@ -484,6 +491,132 @@ def acmp_card(problems, streak):
         f'{tr(f"осталось {ACMP_TOTAL - len(solved)}", f"{ACMP_TOTAL - len(solved)} left")}</text></g>'
     )
     write_svg('first_1000.svg', 1200, h, label, defs, body)
+
+
+PAGE = Template('''<!doctype html>
+<html lang="$lang">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>$title</title>
+<style>
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #000; color: #f5f5f7; -webkit-font-smoothing: antialiased;
+       font: 600 16px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+main { max-width: 1200px; margin: 0 auto; padding: 40px 16px 64px; }
+nav { display: flex; justify-content: space-between; color: #86868b; }
+nav a { color: #2997ff; text-decoration: none; }
+h1 { margin: 40px 0 6px; font-size: 54px; letter-spacing: -1.2px; line-height: 1.1; color: transparent; width: fit-content;
+     background: linear-gradient(90deg, #ff9f0a, #ff375f 35%, #bf5af2 70%, #0a84ff); -webkit-background-clip: text; background-clip: text; }
+.sub { color: #8e8e93; font-size: 20px; font-weight: 500; margin: 0; }
+.card { margin-top: 28px; padding: 40px 48px 34px; border-radius: 32px; border: 1px solid rgba(255,255,255,.1);
+        background: linear-gradient(#161618, #000); }
+.head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
+.label { font-size: 20px; color: transparent; width: fit-content;
+         background: linear-gradient(90deg, #ff9f0a, #ff375f 35%, #bf5af2 70%, #0a84ff); -webkit-background-clip: text; background-clip: text; }
+.site { font-size: 54px; font-weight: 700; letter-spacing: -1.5px; line-height: 1.15; color: transparent;
+        background: linear-gradient(#fff 20%, #8e8e93); -webkit-background-clip: text; background-clip: text; }
+.right { text-align: right; }
+.streak { display: inline-flex; align-items: flex-end; gap: 6px; font-size: 20px; }
+.streak svg { overflow: visible; }
+.count { font-size: 30px; color: #86868b; line-height: 1.15; }
+.count b { font-size: 54px; font-weight: 700; letter-spacing: -1.5px; color: transparent;
+           background: linear-gradient(90deg, #ff9f0a, #ff375f 35%, #bf5af2 70%, #0a84ff); -webkit-background-clip: text; background-clip: text; }
+.grid { display: grid; grid-template-columns: repeat($cols, 1fr); gap: 4px; margin-top: 34px; }
+.grid > * { display: block; aspect-ratio: 1; border-radius: 24%; background: rgba(255,255,255,.06); transition: transform .12s; }
+.grid > *:hover { transform: scale(1.4); position: relative; z-index: 1; box-shadow: 0 0 0 2px #f5f5f7; }
+.foot { display: flex; justify-content: space-between; gap: 16px; margin-top: 28px; color: #86868b; font-size: 18px; }
+.foot b { color: #f5f5f7; }
+#tip { position: fixed; z-index: 2; pointer-events: none; opacity: 0; transition: opacity .1s; white-space: nowrap;
+       padding: 10px 14px; border-radius: 14px; background: rgba(28,28,30,.92); border: 1px solid rgba(255,255,255,.14);
+       -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); box-shadow: 0 8px 30px rgba(0,0,0,.5); }
+#tip small { display: block; color: #86868b; font-size: 14px; font-weight: 500; }
+@media (max-width: 760px) {
+  h1 { font-size: 36px; } .sub { font-size: 16px; }
+  .card { padding: 22px 16px; border-radius: 22px; } .head { flex-wrap: wrap; } .right { text-align: left; }
+  .site, .count b { font-size: 34px; } .count { font-size: 20px; } .label, .streak { font-size: 15px; }
+  .grid { gap: 2px; margin-top: 20px; } .foot { font-size: 14px; flex-direction: column; gap: 4px; }
+}
+</style>
+</head>
+<body>
+<main>
+<nav><a href="$repo">‹ olymp</a><span>$switch</span></nav>
+<h1>$heading</h1>
+<p class="sub">$sub</p>
+<div class="card">
+  <div class="head">
+    <div><div class="label">$label</div><div class="site">acmp.ru</div></div>
+    <div class="right">$streak<div class="count"><b>$solved</b> / $total</div></div>
+  </div>
+  <div class="grid" id="grid"></div>
+  <div class="foot"><div>$latest</div><div>$left</div></div>
+</div>
+</main>
+<div id="tip"></div>
+<script>
+var DATA = $data, T = $strings, TOTAL = $total;
+var grid = document.getElementById('grid'), tip = document.getElementById('tip');
+for (var i = 1; i <= TOTAL; i++) {
+  var p = DATA[i], el = document.createElement(p ? 'a' : 'i');
+  if (p) { el.href = p.url; el.style.background = p.color; }
+  el.dataset.id = i;
+  grid.appendChild(el);
+}
+function show(e) {
+  var id = e.target.dataset.id;
+  if (!id) { tip.style.opacity = 0; return; }
+  var p = DATA[id], title = document.createElement('div'), note = document.createElement('small');
+  title.textContent = T.task + ' ' + id + (p ? ' · ' + p.name : '');
+  note.textContent = !p ? T.todo : p.status !== 'done' ? T.draft
+                   : (p.level != null ? T.level + ' ' + p.level + '% · ' : '') + T.open;
+  tip.replaceChildren(title, note);
+  var x = e.clientX + 16, y = e.clientY + 18;
+  if (x + tip.offsetWidth > innerWidth - 8) x = e.clientX - tip.offsetWidth - 16;
+  if (y + tip.offsetHeight > innerHeight - 8) y = e.clientY - tip.offsetHeight - 16;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px'; tip.style.opacity = 1;
+}
+grid.addEventListener('mousemove', show);
+grid.addEventListener('mouseleave', function () { tip.style.opacity = 0; });
+</script>
+</body>
+</html>
+''')
+
+
+def acmp_page(problems, streak):
+    """Живая сетка «Первые 1000» для GitHub Pages: у курсора — номер и название задачи, клик — файл с решением.
+    В README картинка неинтерактивна, поэтому карточка ведёт сюда. Английская — docs/index.html, русская — docs/ru/."""
+    solved = [p for p in problems if p['status'] == 'done']
+    data = {p['id']: dict(name=p['name'], level=p['level'], status=p['status'], color=cell_color(p),
+                          url=f'{OLYMP_URL}/blob/main/{p["file"]}') for p in problems}
+    strings = dict(task=tr('Задача', 'Problem'), level=tr('Сложность', 'Difficulty'),
+                   open=tr('открыть решение ›', 'open the solution ›'),
+                   draft=tr('черновик: пока не проходит примеры ›', 'draft: does not pass the examples yet ›'),
+                   todo=tr('ещё не решена', 'not solved yet'))
+    streak_html = ''
+    if streak:
+        defs, body, _, _, color = flame(26, 40, streak)
+        streak_html = (f'<div class="streak" style="color:{color}">{plural_days(streak["days"])} {tr("подряд", "in a row")}'
+                       f'<svg width="26" height="40" viewBox="0 0 26 40"><defs>{defs}</defs>{body}</svg></div>')
+    no = tr('№', '#')
+    latest = (f'{tr("Последняя решённая — ", "Last solved — ")}<b>{no}{solved[-1]["id"]} · {esc(solved[-1]["name"])}</b>'
+              if solved else tr('Первая задача — впереди', 'The first problem is still ahead'))
+    page = PAGE.substitute(
+        lang=LANG, title=tr('Первые 1000 · olymp', 'First 1000 · olymp'), cols=ACMP_COLS, total=ACMP_TOTAL,
+        repo=OLYMP_URL if LANG == 'en' else f'{OLYMP_URL}/blob/main/README.ru.md',
+        switch=('<a href="../">English</a> &nbsp;|&nbsp; Русский' if LANG == 'ru' else 'English &nbsp;|&nbsp; <a href="ru/">Русский</a>'),
+        heading=tr('Первые 1000', 'First 1000'),
+        sub=tr('Наведи на клетку — увидишь задачу. Нажми — откроется решение.',
+               'Hover over a cell to see the problem. Click it to open the solution.'),
+        label=f'{tr("Задачник", "Problem set")} · {no}1 — {no}{ACMP_TOTAL}', streak=streak_html, solved=len(solved),
+        latest=latest, left=tr(f'осталось {ACMP_TOTAL - len(solved)}', f'{ACMP_TOTAL - len(solved)} left'),
+        data=json.dumps(data, ensure_ascii=False).replace('</', '<\\/'), strings=json.dumps(strings, ensure_ascii=False))
+    path = os.path.join(ROOT, 'docs', *(['ru'] if LANG == 'ru' else []), 'index.html')
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w') as f:
+        f.write(page)
 
 
 def algorithm_row(a):
@@ -649,7 +782,7 @@ def readme(contests, algorithms, algo_rows, acmp_solved, total):
                    f'alt="{esc(c["series"])} {esc(c["title"])}, {esc(date(c["date"]))}" width="100%"></a>\n')
     out += ['<br>\n<br>\n',
             section_title('first-1000', 'first_1000', tr('Первые 1000', 'First 1000'), img),
-            f'<a href="{ACMP_DIR}"><img src="{img}/first_1000.svg" alt="'
+            f'<a href="{PAGES_URL}{"ru/" if LANG == "ru" else ""}"><img src="{img}/first_1000.svg" alt="'
             + tr(f'Первые 1000 задач acmp.ru: решено {acmp_solved} из {ACMP_TOTAL}',
                  f'First 1000 problems on acmp.ru: {acmp_solved} of {ACMP_TOTAL} solved')
             + '" width="100%"></a>\n',
@@ -696,13 +829,15 @@ def build(lang, contests, algorithms, acmp, streak):
     for c in contests:
         contest_card(c)
     acmp_card(acmp, streak)
+    acmp_page(acmp, streak)
     algo_rows = [algorithm_row(a) for a in algorithms]
     title('contests', tr('Контесты', 'Contests'),
           [tr('Нажми на карточку — откроются условия и решения.', 'Click a card to open the problems and solutions.'),
            tr('«Решена» — проходит все примеры из условия, проверяется автоматически.',
               '“Solved” means it passes all examples from the problem. This is checked automatically.')])
     title('first_1000', tr('Первые 1000', 'First 1000'),
-          [tr('Задачи acmp.ru по порядку — от №1 до №1000.', 'acmp.ru problems in order — from #1 to #1000.'),
+          [tr('Задачи acmp.ru по порядку, от №1 до №1000. Нажми на карточку — откроются решения.',
+              'acmp.ru problems in order, from #1 to #1000. Click the card to open the solutions.'),
            tr('Каждая клетка — задача. Зелёная — решена: чем ярче, тем сложнее задача.',
               'Each cell is a problem. Green means solved: the brighter, the harder the problem.'),
            tr('Огонёк — сколько дней подряд я решаю задачи.', 'The flame shows how many days in a row I have been solving.')])

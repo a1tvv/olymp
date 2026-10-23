@@ -33,7 +33,7 @@
 <a name="first-1000"></a>
 <img src="assets/titles/first_1000.svg" alt="Первые 1000" width="100%">
 
-<a href="first_1000"><img src="assets/first_1000.svg" alt="Первые 1000 задач acmp.ru: решено 6 из 1000" width="100%"></a>
+<a href="https://a1tvv.github.io/olymp/ru/"><img src="assets/first_1000.svg" alt="Первые 1000 задач acmp.ru: решено 6 из 1000" width="100%"></a>
 
 <br>
 <br>
