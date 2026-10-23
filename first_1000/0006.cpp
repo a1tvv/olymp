@@ -36,14 +36,20 @@ bool hours_g(int dx, int dy) {
 int main() {
     string s;
     cin >> s;
- 
-    if (false){
-        cout << "ERROR";
-    } else {
+
+    if  (s.size()==5 and 
+        (s[0] >= 'A' and s[0] <= 'H') and
+        s[1] >= '1' and s[1] <= '8' and
+        s[2] == '-' and
+        (s[3] >= 'A' and s[3] <= 'H') and
+        s[4] >= '1' and s[4] <= '8'
+        ) {
         int dx = s[0] - s[3];
         int dy = s[1] - s[4];
         if (hours_g(dx, dy)) {
             cout << "YES";
         } else {cout << "NO";}
+    } else {
+        cout << "ERROR";
     }
 }
