@@ -1,5 +1,6 @@
 // acmp №1 · A+B
 // https://acmp.ru/index.asp?main=task&id_task=1
+// Сложность: 2%
 //
 // Требуется сложить два целых числа А и В.
 //

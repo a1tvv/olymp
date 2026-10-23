@@ -63,8 +63,11 @@ STATUS = {
     'draft': dict(label='Черновик', label_en='Draft', color='#ff9f0a'),
     'soon': dict(label='Скоро', label_en='Soon', color='#98989d'),
 }
-ACMP_DIR, ACMP_TOTAL, ACMP_COLS = 'first_1000', 1000, 50
+ACMP_DIR, ACMP_TOTAL, ACMP_COLS = 'first_1000', 1000, 40
 ACMP_HEAD = re.compile(r'// acmp №(\d+) · (.+)')      # первая строка файла
+ACMP_LEVEL = re.compile(r'// Сложность: (\d+)%')      # третья строка: сложность с сайта acmp
+# решённая задача: чем сложнее, тем ярче зелёный — как в графике коммитов GitHub; (сложность до …%, цвет)
+ACMP_GREENS = ((10, '#1a5c2e'), (20, '#1f8a3d'), (35, '#2cb84f'), (101, '#4be36b'))
 ACMP_EXAMPLE = re.compile(r'//\s{2,}(.+?)\s+→\s+(.+)')  # «//   2 3 → 5» в шапке; « / » — новая строка
 TZ = timezone(timedelta(hours=6))  # Бишкек: по нему считаются дни серии
 FLAME_FROM, FLAME_PURPLE, FLAME_DEAD = 3, 100, 3  # огонёк с 3-го дня, фиолетовый со 100-го, гаснет после 3 пустых дней
@@ -155,11 +158,12 @@ def load_acmp(workdir):
         head = ACMP_HEAD.fullmatch(lines[0]) if lines else None
         if not head:
             continue
+        level = next((int(m[1]) for m in map(ACMP_LEVEL.fullmatch, lines[:5]) if m), None)
         examples = [(m[1].replace(' / ', '\n'), m[2].replace(' / ', '\n'))
                     for m in map(ACMP_EXAMPLE.fullmatch, lines) if m]
         cmd = command(path, workdir)
         ok = cmd and examples and all(passes(cmd, data, out) for data, out in examples)
-        problems.append(dict(id=int(head[1]), name=head[2], status='done' if ok else 'draft'))
+        problems.append(dict(id=int(head[1]), name=head[2], level=level, status='done' if ok else 'draft'))
     return sorted(problems, key=lambda p: p['id'])
 
 
@@ -438,15 +442,19 @@ def acmp_card(problems, streak):
     """Сетка из 1000 клеток — по одной на задачу acmp №1…№1000; решённые горят зелёным.
     В правом верхнем углу — огонёк серии «N дней подряд», под ним счётчик решённых."""
     solved = [p for p in problems if p['status'] == 'done']
-    pitch, cell, x0, y0 = 22, 18, 52, 196
+    pitch = 1100 / ACMP_COLS  # сетка во всю ширину карточки
+    cell, x0, y0 = round(pitch * 0.82, 1), 52, 196
     rows = ACMP_TOTAL // ACMP_COLS
     grid_h = rows * pitch - (pitch - cell)
     cells = ''
     for p in problems:
         i = p['id'] - 1
         if i < ACMP_TOTAL:
-            cells += (f'<rect x="{x0 + i % ACMP_COLS * pitch}" y="{y0 + i // ACMP_COLS * pitch}" width="{cell}" '
-                      f'height="{cell}" rx="5" fill="{STATUS[p["status"]]["color"]}"/>')
+            fill = STATUS[p['status']]['color']
+            if p['status'] == 'done':
+                fill = next(c for limit, c in ACMP_GREENS if (p['level'] or 20) < limit)  # нет сложности — средний
+            cells += (f'<rect x="{x0 + i % ACMP_COLS * pitch:.1f}" y="{y0 + i // ACMP_COLS * pitch:.1f}" width="{cell}" '
+                      f'height="{cell}" rx="6" fill="{fill}"/>')
     no = tr('№', '#')
     latest = (f'<tspan fill="#86868b">{tr("Последняя решённая — ", "Last solved — ")}</tspan>{no}{solved[-1]["id"]} · {esc(solved[-1]["name"])}'
               if solved else f'<tspan fill="#86868b">{tr("Первая задача — впереди", "The first problem is still ahead")}</tspan>')
@@ -463,7 +471,7 @@ def acmp_card(problems, streak):
         label += tr(f'. Серия: {plural_days(streak["days"])} подряд', f'. Streak: {plural_days(streak["days"])} in a row')
     defs = (TILE + TITANIUM + f'<linearGradient id="ai" x1="0" y1="0" x2="1" y2="0">{AI_STOPS}</linearGradient>'
             f'<pattern id="cell" x="{x0}" y="{y0}" width="{pitch}" height="{pitch}" patternUnits="userSpaceOnUse">'
-            f'<rect width="{cell}" height="{cell}" rx="5" fill="#ffffff" fill-opacity="0.06"/></pattern>' + flame_defs)
+            f'<rect width="{cell}" height="{cell}" rx="6" fill="#ffffff" fill-opacity="0.06"/></pattern>' + flame_defs)
     body = (
         f'<rect x="0.5" y="0.5" width="1199" height="{h - 1}" rx="31.5" fill="url(#tile)" stroke="#ffffff" stroke-opacity="0.1"/>'
         f'<g font-weight="600"><text x="48" y="84" font-size="22" fill="url(#ai)">{tr("Задачник", "Problem set")} · {no}1 — {no}{ACMP_TOTAL}</text>'
@@ -695,7 +703,8 @@ def build(lang, contests, algorithms, acmp, streak):
               '“Solved” means it passes all examples from the problem. This is checked automatically.')])
     title('first_1000', tr('Первые 1000', 'First 1000'),
           [tr('Задачи acmp.ru по порядку — от №1 до №1000.', 'acmp.ru problems in order — from #1 to #1000.'),
-           tr('Каждая клетка — задача, зелёная — решена.', 'Each cell is a problem. Green means solved.'),
+           tr('Каждая клетка — задача. Зелёная — решена: чем ярче, тем сложнее задача.',
+              'Each cell is a problem. Green means solved: the brighter, the harder the problem.'),
            tr('Огонёк — сколько дней подряд я решаю задачи.', 'The flame shows how many days in a row I have been solving.')])
     title('algorithms', tr('Алгоритмы', 'Algorithms'), [tr('Классика, написанная своими руками.', 'Classic algorithms, written by hand.')])
     title('structure', tr('Структура', 'Structure'), [tr('Всё на своих местах.', 'Everything in its place.')])
