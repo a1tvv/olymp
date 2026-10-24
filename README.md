@@ -13,7 +13,7 @@
 
 <br>
 
-<img src="assets/en/stats.svg" alt="Problems solved: 12" width="100%">
+<img src="assets/en/stats.svg" alt="Problems solved: 13" width="100%">
 
 <br>
 <br>
@@ -33,7 +33,7 @@
 <a name="first-1000"></a>
 <img src="assets/en/titles/first_1000.svg" alt="First 1000" width="100%">
 
-<a href="https://a1tvv.github.io/olymp/"><img src="assets/en/first_1000.svg" alt="First 1000 problems on acmp.ru: 6 of 1000 solved" width="100%"></a>
+<a href="https://a1tvv.github.io/olymp/"><img src="assets/en/first_1000.svg" alt="First 1000 problems on acmp.ru: 7 of 1000 solved" width="100%"></a>
 
 <br>
 <br>
