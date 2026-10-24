@@ -6,7 +6,6 @@
 <p align="center">
   <a href="#contests">Контесты&nbsp;›</a>&emsp;
   <a href="#first-1000">Первые 1000&nbsp;›</a>&emsp;
-  <a href="#algorithms">Алгоритмы&nbsp;›</a>&emsp;
   <a href="#structure">Структура&nbsp;›</a>&emsp;
   <a href="#run">Запуск&nbsp;›</a>
 </p>
@@ -33,16 +32,7 @@
 <a name="first-1000"></a>
 <img src="assets/titles/first_1000.svg" alt="Первые 1000" width="100%">
 
-<a href="https://a1tvv.github.io/olymp/ru/"><img src="assets/first_1000.svg" alt="Первые 1000 задач acmp.ru: решено 7 из 1000" width="100%"></a>
-
-<br>
-<br>
-
-<a name="algorithms"></a>
-<img src="assets/titles/algorithms.svg" alt="Алгоритмы" width="100%">
-
-<a href="algorithms/sorting/bubble_sort_swaps.cpp"><img src="assets/rows/bubble_sort_swaps.svg" alt="Сортировка пузырьком — O(n²)" width="100%"></a>
-<a href="algorithms/sorting/selection_sort.cpp"><img src="assets/rows/selection_sort.svg" alt="Сортировка выбором — O(n²)" width="100%"></a>
+<a href="https://a1tvv.github.io/olymp/ru/"><img src="assets/first_1000.svg" alt="Задачи acmp.ru: решено 9 из 2379" width="100%"></a>
 
 <br>
 <br>
@@ -70,7 +60,7 @@ python3 2026-icpc-qual/solutions/D.py <<< 34
 # 8 15
 
 # C++
-clang++ -std=c++17 -O2 algorithms/sorting/bubble_sort_swaps.cpp -o bubble
+clang++ -std=c++17 -O2 first_1000/1231.cpp -o bubble
 echo "4  4 2 3 1" | ./bubble
 # 5
 

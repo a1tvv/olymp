@@ -7,7 +7,6 @@
 2. Считает статистику и рисует карточки в стиле iOS.
 3. Собирает две версии: английскую (README.md, картинки в assets/en) — её GitHub показывает по умолчанию,
    и русскую (README.ru.md, картинки в assets). Сверху у обеих — ссылка-переключатель.
-   Английские название и описание алгоритма — поля name_en и about_en в algorithms/algorithms.json.
 
 4. Рисует огонёк серии, как в TikTok: дни подряд с коммитами (по времени Бишкека), см. load_streak.
 
@@ -66,7 +65,7 @@ STATUS = {
     'draft': dict(label='Черновик', label_en='Draft', color='#ff9f0a'),
     'soon': dict(label='Скоро', label_en='Soon', color='#98989d'),
 }
-ACMP_DIR, ACMP_TOTAL, ACMP_COLS = 'first_1000', 1000, 40
+ACMP_DIR, ACMP_TOTAL, ACMP_COLS = 'first_1000', 2379, 50  # всего задач на acmp.ru
 ACMP_HEAD = re.compile(r'// acmp №(\d+) · (.+)')      # первая строка файла
 ACMP_LEVEL = re.compile(r'// Сложность: (\d+)%')      # третья строка: сложность с сайта acmp
 # решённая задача: чем сложнее, тем ярче зелёный — как в графике коммитов GitHub; (сложность до …%, цвет)
@@ -151,6 +150,15 @@ def load_acmp(workdir):
     """Задачи acmp из first_1000/: номер и название — из первой строки, примеры — из шапки.
     Берём только файлы, которые есть в git, чтобы в README не попали незакоммиченные решения."""
     files = subprocess.run(['git', 'ls-files', ACMP_DIR], cwd=ROOT, capture_output=True, text=True).stdout.split()
+    # когда решение коммитили в последний раз: берём коммиты, где менялась ровно одна задача,
+    # чтобы общие правки (переносы файлов, новые строки в шапках) не путали «последнюю решённую»
+    log = subprocess.run(['git', 'log', '--format=@%at', '--name-only', '--', ACMP_DIR],
+                         cwd=ROOT, capture_output=True, text=True).stdout
+    touched = {}
+    for commit in log.split('@')[1:]:
+        ts, *names = commit.split()
+        if len(names) == 1:
+            touched.setdefault(names[0], int(ts))
     problems = []
     for name in files:
         path = os.path.join(ROOT, name)
@@ -166,7 +174,8 @@ def load_acmp(workdir):
                     for m in map(ACMP_EXAMPLE.fullmatch, lines) if m]
         cmd = command(path, workdir)
         ok = cmd and examples and all(passes(cmd, data, out) for data, out in examples)
-        problems.append(dict(id=int(head[1]), name=head[2], level=level, file=name, status='done' if ok else 'draft'))
+        problems.append(dict(id=int(head[1]), name=head[2], level=level, file=name, time=touched.get(name, 0),
+                             status='done' if ok else 'draft'))
     return sorted(problems, key=lambda p: p['id'])
 
 
@@ -205,9 +214,7 @@ def load():
                 p['status'] = judge(cdir, p['letter'], workdir)
             contests.append(contest)
         acmp = load_acmp(workdir)
-    with open(os.path.join(ROOT, 'algorithms', 'algorithms.json')) as f:
-        algorithms = json.load(f)
-    return contests, algorithms, acmp
+    return contests, acmp
 
 
 # ───────────────────────── SVG-помощники ─────────────────────────
@@ -231,13 +238,6 @@ def write_svg(path, w, h, label, defs, body):
                 f'<g font-family="{FONT}">\n{body}\n</g>\n</svg>\n')
 
 
-def app_icon(x, y, size, gid, inner):
-    r = size * 0.26
-    return (f'<rect x="{x}" y="{y}" width="{size}" height="{size}" rx="{r}" fill="url(#{gid})"/>'
-            f'<rect x="{x + .5}" y="{y + .5}" width="{size - 1}" height="{size - 1}" rx="{r}" fill="none" '
-            f'stroke="#ffffff" stroke-opacity="0.18"/>' + inner)
-
-
 def rich(x, y, line, fs=21):
     """Строка, где `текст в обратных кавычках` выделяется моноширинным голубым."""
     out = f'<text x="{x}" y="{y}" font-size="{fs}" font-weight="500" fill="#d1d1d6">'
@@ -250,9 +250,6 @@ def rich(x, y, line, fs=21):
         else:
             out += f'<tspan>{esc(part)}</tspan>'
     return out + '</text>'
-
-
-CARD_ROW = '<rect x="0.5" y="6.5" width="{w}" height="119" rx="26" fill="url(#tile)" stroke="#ffffff" stroke-opacity="0.1"/>'
 
 
 # ───────────────────────── карточки ─────────────────────────
@@ -294,7 +291,7 @@ def banner(total):
                                           'Altay Abdurakhim — competitive programming'), defs, body)
 
 
-def stats(total, from_contests, from_algorithms, from_acmp, contests, soon):
+def stats(total, from_contests, from_acmp, contests, soon):
     latest = contests[0] if contests else None
     # отсчёт до итоговой цифры: последние 4 значения, без анимации видна сразу итоговая
     frames = list(range(max(1, total - 3), total + 1)) if total else [0]
@@ -339,7 +336,7 @@ def stats(total, from_contests, from_algorithms, from_acmp, contests, soon):
         f'<text x="48" y="86" font-size="24" fill="#86868b">{tr("Решено задач", "Problems solved")}</text>'
         f'<g font-size="{size}" font-weight="700" letter-spacing="-10" fill="url(#ai)">{numbers}</g>'
         f'<text x="48" y="490" font-size="22" fill="#86868b">{from_contests} — {tr("контесты", "contests")}  ·  '
-        f'{from_algorithms} — {tr("алгоритмы", "algorithms")}  ·  {from_acmp} — acmp</text>'
+        f'{from_acmp} — acmp</text>'
         '<rect x="610.5" y="0.5" width="589" height="259" rx="31.5" fill="url(#tile)" stroke="#ffffff" stroke-opacity="0.1"/>'
         f'<text x="658" y="86" font-size="24" fill="#86868b">{tr("Контесты", "Contests")}</text>'
         f'<text x="650" y="218" font-size="150" font-weight="700" letter-spacing="-4" fill="url(#blue)">{len(contests)}</text>'
@@ -351,10 +348,8 @@ def stats(total, from_contests, from_algorithms, from_acmp, contests, soon):
         '<rect x="915.5" y="280.5" width="284" height="259" rx="31.5" fill="url(#tile)" stroke="#ffffff" stroke-opacity="0.1"/>'
         + soon_body + '</g>'
     )
-    label = tr(f'Решено задач: {total} ({from_contests} с контестов, {from_algorithms} из алгоритмов, '
-               f'{from_acmp} с acmp). Контестов: {len(contests)}.',
-               f'Problems solved: {total} ({from_contests} from contests, {from_algorithms} from algorithms, '
-               f'{from_acmp} from acmp). Contests: {len(contests)}.')
+    label = tr(f'Решено задач: {total} ({from_contests} с контестов, {from_acmp} с acmp). Контестов: {len(contests)}.',
+               f'Problems solved: {total} ({from_contests} from contests, {from_acmp} from acmp). Contests: {len(contests)}.')
     if soon:
         label += tr(' Скоро: ', ' Soon: ') + ', '.join(soon) + '.'
     write_svg('stats.svg', 1200, 540, label, defs, body)
@@ -449,13 +444,13 @@ def cell_color(p):
 
 
 def acmp_card(problems, streak):
-    """Сетка из 1000 клеток — по одной на задачу acmp №1…№1000; решённые горят зелёным.
+    """Сетка: по клетке на каждую задачу acmp, решённые горят зелёным.
     В правом верхнем углу — огонёк серии «N дней подряд», под ним счётчик решённых."""
     solved = [p for p in problems if p['status'] == 'done']
     pitch = 1100 / ACMP_COLS  # сетка во всю ширину карточки
     cell, x0, y0 = round(pitch * 0.82, 1), 52, 196
-    rows = ACMP_TOTAL // ACMP_COLS
-    grid_h = rows * pitch - (pitch - cell)
+    rows, tail = divmod(ACMP_TOTAL, ACMP_COLS)  # tail — клетки в последнем, неполном ряду
+    grid_h = (rows + (tail > 0)) * pitch - (pitch - cell)
     cells = ''
     for p in problems:
         i = p['id'] - 1
@@ -463,7 +458,8 @@ def acmp_card(problems, streak):
             cells += (f'<rect x="{x0 + i % ACMP_COLS * pitch:.1f}" y="{y0 + i // ACMP_COLS * pitch:.1f}" width="{cell}" '
                       f'height="{cell}" rx="6" fill="{cell_color(p)}"/>')
     no = tr('№', '#')
-    latest = (f'<tspan fill="#86868b">{tr("Последняя решённая — ", "Last solved — ")}</tspan>{no}{solved[-1]["id"]} · {esc(solved[-1]["name"])}'
+    last = max(solved, key=lambda p: p['time'], default=None)
+    latest = (f'<tspan fill="#86868b">{tr("Последняя решённая — ", "Last solved — ")}</tspan>{no}{last["id"]} · {esc(last["name"])}'
               if solved else f'<tspan fill="#86868b">{tr("Первая задача — впереди", "The first problem is still ahead")}</tspan>')
     fy = y0 + grid_h + 62
     h = fy + 46
@@ -472,8 +468,8 @@ def acmp_card(problems, streak):
         flame_defs, flame_body, _, left, color = flame(1152, 91, streak)
         flame_body += (f'<text x="{left - 8:.1f}" y="84" font-size="22" fill="{color}" text-anchor="end">'
                        f'{plural_days(streak["days"])} {tr("подряд", "in a row")}</text>')
-    label = tr(f'Первые 1000 задач acmp.ru: решено {len(solved)} из {ACMP_TOTAL}',
-               f'First 1000 problems on acmp.ru: {len(solved)} of {ACMP_TOTAL} solved')
+    label = tr(f'Задачи acmp.ru: решено {len(solved)} из {ACMP_TOTAL}',
+               f'acmp.ru problems: {len(solved)} of {ACMP_TOTAL} solved')
     if streak:
         label += tr(f'. Серия: {plural_days(streak["days"])} подряд', f'. Streak: {plural_days(streak["days"])} in a row')
     defs = (TILE + TITANIUM + f'<linearGradient id="ai" x1="0" y1="0" x2="1" y2="0">{AI_STOPS}</linearGradient>'
@@ -485,7 +481,8 @@ def acmp_card(problems, streak):
         '<text x="46" y="146" font-size="54" font-weight="700" letter-spacing="-1.5" fill="url(#titanium)">acmp.ru</text>'
         f'<text x="1152" y="146" text-anchor="end"><tspan font-size="54" font-weight="700" letter-spacing="-1.5" fill="url(#ai)">{len(solved)}</tspan>'
         f'<tspan font-size="30" fill="#86868b"> / {ACMP_TOTAL}</tspan></text>{flame_body}'
-        f'<rect x="{x0}" y="{y0}" width="{ACMP_COLS * pitch}" height="{rows * pitch}" fill="url(#cell)"/>{cells}'
+        f'<rect x="{x0}" y="{y0}" width="{ACMP_COLS * pitch}" height="{rows * pitch}" fill="url(#cell)"/>'
+        f'<rect x="{x0}" y="{y0 + rows * pitch}" width="{tail * pitch}" height="{pitch}" fill="url(#cell)"/>{cells}'
         f'<text x="48" y="{fy}" font-size="22" fill="#f5f5f7">{latest}</text>'
         f'<text x="1152" y="{fy}" font-size="22" fill="#86868b" text-anchor="end">'
         f'{tr(f"осталось {ACMP_TOTAL - len(solved)}", f"{ACMP_TOTAL - len(solved)} left")}</text></g>'
@@ -601,7 +598,8 @@ def acmp_page(problems, streak):
         streak_html = (f'<div class="streak" style="color:{color}">{plural_days(streak["days"])} {tr("подряд", "in a row")}'
                        f'<svg width="26" height="40" viewBox="0 0 26 40"><defs>{defs}</defs>{body}</svg></div>')
     no = tr('№', '#')
-    latest = (f'{tr("Последняя решённая — ", "Last solved — ")}<b>{no}{solved[-1]["id"]} · {esc(solved[-1]["name"])}</b>'
+    last = max(solved, key=lambda p: p['time'], default=None)
+    latest = (f'{tr("Последняя решённая — ", "Last solved — ")}<b>{no}{last["id"]} · {esc(last["name"])}</b>'
               if solved else tr('Первая задача — впереди', 'The first problem is still ahead'))
     page = PAGE.substitute(
         lang=LANG, title=tr('Первые 1000 · olymp', 'First 1000 · olymp'), cols=ACMP_COLS, total=ACMP_TOTAL,
@@ -617,28 +615,6 @@ def acmp_page(problems, streak):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'w') as f:
         f.write(page)
-
-
-def algorithm_row(a):
-    name = os.path.splitext(os.path.basename(a['file']))[0]
-    bars = ''.join(f'<rect x="{39 + i * 14}" y="{90 - h}" width="9" height="{h}" rx="3" fill="#ffffff"/>'
-                   for i, h in enumerate((16, 28, 40, 52)))
-    pill = a['complexity']
-    w = 30 + 12 * len(pill)
-    lang = 'C++' if a['file'].endswith('.cpp') else 'Python'
-    body = (CARD_ROW.format(w=1199) + app_icon(22, 24, 84, 'ic', bars) +
-            f'<text x="128" y="61" font-size="30" font-weight="600" fill="#f5f5f7">{esc(algo_text(a, "name"))}</text>'
-            f'<text x="128" y="99" font-size="21" font-weight="500" fill="#86868b">{esc(algo_text(a, "about"))} · {lang}</text>'
-            f'<rect x="{1128 - w}" y="48" width="{w}" height="36" rx="18" fill="#ffffff" fill-opacity="0.08"/>'
-            f'<text x="{1128 - w / 2}" y="72" font-family="{MONO}" font-size="19" font-weight="600" fill="#f5f5f7" text-anchor="middle">{esc(pill)}</text>'
-            '<path d="M1160 53l12 13-12 13" fill="none" stroke="#636366" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>')
-    write_svg(f'rows/{name}.svg', 1200, 132, f'{algo_text(a, "name")} — {pill}, {lang}', TILE + grad_def('ic', 'violet'), body)
-    return name
-
-
-def algo_text(a, key):
-    """Название или описание алгоритма на языке сборки; нет английского — берём русское."""
-    return a.get(f'{key}_en', a[key]) if LANG == 'en' else a[key]
 
 
 def title(name, heading, subs):
@@ -657,7 +633,6 @@ def structure(contests):
                  (2, 'tests/', tr('примеры из условий', 'examples from the problems')),
                  (2, 'contest.json', tr('названия, темы, разборы', 'names, topics, explanations'))]
     tree += [(1, 'first_1000/', tr('задачи acmp.ru: 0001.cpp, 0002.cpp, …', 'acmp.ru problems: 0001.cpp, 0002.cpp, …')),
-             (1, 'algorithms/', tr('классические алгоритмы', 'classic algorithms')),
              (1, 'scripts/', tr('сборка README и проверка решений', 'README build and solution checks')),
              (1, 'assets/', tr('картинки для README', 'pictures for README'))]
     row, top, x0, ind = 46, 74, 48, 44
@@ -697,7 +672,7 @@ def terminal():
         [('$ ', p), ('python3 2026-icpc-qual/solutions/D.py ', t), ('<<<', op), (' 34', t)],
         [('8 15', out)], [],
         [('# C++', com)],
-        [('$ ', p), ('clang++ -std=c++17 -O2 algorithms/sorting/bubble_sort_swaps.cpp -o bubble', t)],
+        [('$ ', p), ('clang++ -std=c++17 -O2 first_1000/1231.cpp -o bubble', t)],
         [('$ ', p), ('echo ', t), ('"4  4 2 3 1"', s), (' | ', op), ('./bubble', t)],
         [('5', out)], [],
         [(tr('# Пересобрать README вручную', '# Rebuild README by hand'), com)],
@@ -753,7 +728,7 @@ def section_title(anchor, name, alt, img):
     return f'<a name="{anchor}"></a>\n<img src="{img}/titles/{name}.svg" alt="{alt}" width="100%">\n'
 
 
-def readme(contests, algorithms, algo_rows, acmp_solved, total):
+def readme(contests, acmp_solved, total):
     img = 'assets' if LANG == 'ru' else 'assets/en'  # цитата и футер — общие, лежат в assets
     switch = ('<p align="center"><a href="README.md">English</a> &nbsp;|&nbsp; <b>Русский</b></p>' if LANG == 'ru' else
               '<p align="center"><b>English</b> &nbsp;|&nbsp; <a href="README.ru.md">Русский</a></p>')
@@ -767,7 +742,6 @@ def readme(contests, algorithms, algo_rows, acmp_solved, total):
         '',
         f'<p align="center">\n  <a href="#contests">{tr("Контесты", "Contests")}&nbsp;›</a>&emsp;\n'
         f'  <a href="#first-1000">{tr("Первые 1000", "First 1000")}&nbsp;›</a>&emsp;\n'
-        f'  <a href="#algorithms">{tr("Алгоритмы", "Algorithms")}&nbsp;›</a>&emsp;\n'
         f'  <a href="#structure">{tr("Структура", "Structure")}&nbsp;›</a>&emsp;\n'
         f'  <a href="#run">{tr("Запуск", "Run")}&nbsp;›</a>\n</p>',
         '', '<br>', '',
@@ -783,15 +757,10 @@ def readme(contests, algorithms, algo_rows, acmp_solved, total):
     out += ['<br>\n<br>\n',
             section_title('first-1000', 'first_1000', tr('Первые 1000', 'First 1000'), img),
             f'<a href="{PAGES_URL}{"ru/" if LANG == "ru" else ""}"><img src="{img}/first_1000.svg" alt="'
-            + tr(f'Первые 1000 задач acmp.ru: решено {acmp_solved} из {ACMP_TOTAL}',
-                 f'First 1000 problems on acmp.ru: {acmp_solved} of {ACMP_TOTAL} solved')
+            + tr(f'Задачи acmp.ru: решено {acmp_solved} из {ACMP_TOTAL}',
+                 f'acmp.ru problems: {acmp_solved} of {ACMP_TOTAL} solved')
             + '" width="100%"></a>\n',
-            '<br>\n<br>\n']
-    out.append(section_title('algorithms', 'algorithms', tr('Алгоритмы', 'Algorithms'), img))
-    for a, name in zip(algorithms, algo_rows):
-        out.append(f'<a href="algorithms/{a["file"]}"><img src="{img}/rows/{name}.svg" '
-                   f'alt="{esc(algo_text(a, "name"))} — {esc(a["complexity"])}" width="100%"></a>')
-    out += ['', '<br>\n<br>', '',
+            '<br>\n<br>\n',
             section_title('structure', 'structure', tr('Структура', 'Structure'), img),
             f'<img src="{img}/structure.svg" alt="{tr("Структура репозитория", "Repository structure")}" width="100%">',
             '', '<br>\n<br>', '',
@@ -800,7 +769,7 @@ def readme(contests, algorithms, algo_rows, acmp_solved, total):
             '',
             f'<details>\n<summary>{tr("Скопировать команды", "Copy the commands")}</summary>\n<br>\n\n```bash\n# Python\n'
             'python3 2026-icpc-qual/solutions/D.py <<< 34\n# 8 15\n\n# C++\n'
-            'clang++ -std=c++17 -O2 algorithms/sorting/bubble_sort_swaps.cpp -o bubble\necho "4  4 2 3 1" | ./bubble\n# 5\n\n'
+            'clang++ -std=c++17 -O2 first_1000/1231.cpp -o bubble\necho "4  4 2 3 1" | ./bubble\n# 5\n\n'
             f'{tr("# Пересобрать README вручную", "# Rebuild README by hand")}\npython3 scripts/build.py\n```\n\n</details>',
             '', '<br>', '',
             '<img src="assets/footer.svg" alt="Stay hungry. Stay foolish. — Steve Jobs, 1955–2011" width="100%">',
@@ -811,37 +780,35 @@ def readme(contests, algorithms, algo_rows, acmp_solved, total):
         f.write('\n'.join(out))
 
 
-def build(lang, contests, algorithms, acmp, streak):
+def build(lang, contests, acmp, streak):
     """Рисует картинки и README на одном языке: 'ru' — assets и README.ru.md, 'en' — assets/en и README.md."""
     global LANG, ASSETS
     LANG = lang
     ASSETS = os.path.join(ROOT, 'assets') if lang == 'ru' else os.path.join(ROOT, 'assets', 'en')
-    for sub in ('contests', 'rows', 'titles'):  # сгенерированные папки пересоздаём, чтобы не копился мусор
+    for sub in ('contests', 'titles'):  # сгенерированные папки пересоздаём, чтобы не копился мусор
         shutil.rmtree(os.path.join(ASSETS, sub), ignore_errors=True)
 
     from_contests = sum(p['status'] == 'done' for c in contests for p in c['problems'])
     from_acmp = sum(p['status'] == 'done' for p in acmp)
-    total = from_contests + len(algorithms) + from_acmp
+    total = from_contests + from_acmp
     soon = [p['letter'] for p in (contests[0]['problems'] if contests else []) if p['status'] != 'done']
 
     banner(total)
-    stats(total, from_contests, len(algorithms), from_acmp, contests, soon)
+    stats(total, from_contests, from_acmp, contests, soon)
     for c in contests:
         contest_card(c)
     acmp_card(acmp, streak)
     acmp_page(acmp, streak)
-    algo_rows = [algorithm_row(a) for a in algorithms]
     title('contests', tr('Контесты', 'Contests'),
           [tr('Нажми на карточку — откроются условия и решения.', 'Click a card to open the problems and solutions.'),
            tr('«Решена» — проходит все примеры из условия, проверяется автоматически.',
               '“Solved” means it passes all examples from the problem. This is checked automatically.')])
     title('first_1000', tr('Первые 1000', 'First 1000'),
-          [tr('Задачи acmp.ru по порядку, от №1 до №1000. Нажми на карточку — откроются решения.',
-              'acmp.ru problems in order, from #1 to #1000. Click the card to open the solutions.'),
+          [tr(f'Все задачи acmp.ru по порядку, от №1 до №{ACMP_TOTAL}. Нажми на карточку — откроются решения.',
+              f'All acmp.ru problems in order, from #1 to #{ACMP_TOTAL}. Click the card to open the solutions.'),
            tr('Каждая клетка — задача. Зелёная — решена: чем ярче, тем сложнее задача.',
               'Each cell is a problem. Green means solved: the brighter, the harder the problem.'),
            tr('Огонёк — сколько дней подряд я решаю задачи.', 'The flame shows how many days in a row I have been solving.')])
-    title('algorithms', tr('Алгоритмы', 'Algorithms'), [tr('Классика, написанная своими руками.', 'Classic algorithms, written by hand.')])
     title('structure', tr('Структура', 'Structure'), [tr('Всё на своих местах.', 'Everything in its place.')])
     title('run', tr('Запуск', 'Run'), [tr('Скопировал. Запустил. Готово.', 'Copy. Run. Done.')])
     structure(contests)
@@ -849,20 +816,20 @@ def build(lang, contests, algorithms, acmp, streak):
     if lang == 'ru':  # в цитате и футере нет русского текста — они общие для обеих версий
         quote()
         footer()
-    readme(contests, algorithms, algo_rows, from_acmp, total)
+    readme(contests, from_acmp, total)
     return from_contests, from_acmp, total
 
 
 def main():
-    contests, algorithms, acmp = load()
+    contests, acmp = load()
     streak = load_streak('--commit' in sys.argv)
-    build('ru', contests, algorithms, acmp, streak)
-    from_contests, from_acmp, total = build('en', contests, algorithms, acmp, streak)
+    build('ru', contests, acmp, streak)
+    from_contests, from_acmp, total = build('en', contests, acmp, streak)
 
     for c in contests:
         print(c['slug'] + ': ' + '  '.join(f'{p["letter"]}={STATUS[p["status"]]["label"]}' for p in c['problems']))
     print('acmp: ' + ('  '.join(f'№{p["id"]}={STATUS[p["status"]]["label"]}' for p in acmp) or 'пока пусто'))
-    print(f'Решено всего: {total} (контесты {from_contests} + алгоритмы {len(algorithms)} + acmp {from_acmp})')
+    print(f'Решено всего: {total} (контесты {from_contests} + acmp {from_acmp})')
     print(f'Серия: {streak["days"]} дн., коммитов {streak["commits"]}' + (', огонёк серый' if streak['gray'] else '')
           if streak else 'Серия: огонька нет')
 
