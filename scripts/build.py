@@ -3,7 +3,7 @@
 
 1. Прогоняет каждое решение на примерах из tests/ и ставит статус:
    «Решена» — все примеры прошли, «Черновик» — решение есть, но падает, «Скоро» — решения нет.
-   Задачи acmp из first_1000/ проверяются на примерах из шапки-комментария в самом файле.
+   Задачи из acmp.ru/ проверяются на примерах из шапки-комментария в самом файле.
 2. Считает статистику и рисует карточки в стиле iOS.
 3. Собирает две версии: английскую (README.md, картинки в assets/en) — её GitHub показывает по умолчанию,
    и русскую (README.ru.md, картинки в assets). Сверху у обеих — ссылка-переключатель.
@@ -30,7 +30,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS = os.path.join(ROOT, 'assets')
 REPO_URL = 'https://github.com/a1tvv'
 OLYMP_URL = 'https://github.com/a1tvv/olymp'
-PAGES_URL = 'https://a1tvv.github.io/olymp/'  # живая сетка «Первые 1000»: GitHub Pages из папки docs/
+PAGES_URL = 'https://a1tvv.github.io/olymp/'  # живая сетка задач acmp: GitHub Pages из папки docs/
 TIME_LIMIT = 10  # секунд на один пример: с запасом, CI-машины бывают медленными
 LANG = 'ru'
 
@@ -65,7 +65,7 @@ STATUS = {
     'draft': dict(label='Черновик', label_en='Draft', color='#ff9f0a'),
     'soon': dict(label='Скоро', label_en='Soon', color='#98989d'),
 }
-ACMP_DIR, ACMP_TOTAL, ACMP_COLS = 'first_1000', 2379, 50  # всего задач на acmp.ru
+ACMP_DIR, ACMP_TOTAL, ACMP_COLS = 'acmp.ru', 2379, 50  # всего задач на acmp.ru
 ACMP_HEAD = re.compile(r'// acmp №(\d+) · (.+)')      # первая строка файла
 ACMP_LEVEL = re.compile(r'// Сложность: (\d+)%')      # третья строка: сложность с сайта acmp
 # решённая задача: чем сложнее, тем ярче зелёный — как в графике коммитов GitHub; (сложность до …%, цвет)
@@ -147,18 +147,27 @@ def passes(cmd, data, expected):
 
 
 def load_acmp(workdir):
-    """Задачи acmp из first_1000/: номер и название — из первой строки, примеры — из шапки.
+    """Задачи из acmp.ru/: номер и название — из первой строки, примеры — из шапки.
     Берём только файлы, которые есть в git, чтобы в README не попали незакоммиченные решения."""
     files = subprocess.run(['git', 'ls-files', ACMP_DIR], cwd=ROOT, capture_output=True, text=True).stdout.split()
     # когда решение коммитили в последний раз: берём коммиты, где менялась ровно одна задача,
-    # чтобы общие правки (переносы файлов, новые строки в шапках) не путали «последнюю решённую»
-    log = subprocess.run(['git', 'log', '--format=@%at', '--name-only', '--', ACMP_DIR],
+    # чтобы общие правки (переносы файлов, новые строки в шапках) не путали «последнюю решённую».
+    # git log идёт от новых коммитов к старым, а alias помнит старые имена переименованных файлов
+    log = subprocess.run(['git', 'log', '-M', '--format=@%at', '--name-status'],
                          cwd=ROOT, capture_output=True, text=True).stdout
-    touched = {}
-    for commit in log.split('@')[1:]:
-        ts, *names = commit.split()
-        if len(names) == 1:
-            touched.setdefault(names[0], int(ts))
+    touched, alias, ts, names = {}, {}, 0, []
+    for line in log.splitlines() + ['@0']:
+        if line.startswith('@'):
+            tasks = {n for n in names if n.startswith(ACMP_DIR + '/') and n.endswith('.cpp')}
+            if len(tasks) == 1:
+                touched.setdefault(tasks.pop(), ts)
+            ts, names = int(line[1:]), []
+        elif line:
+            status, *paths = line.split('\t')
+            current = alias.get(paths[-1], paths[-1])
+            if status.startswith('R'):
+                alias[paths[0]] = current
+            names.append(current)
     problems = []
     for name in files:
         path = os.path.join(ROOT, name)
@@ -477,8 +486,8 @@ def acmp_card(problems, streak):
             f'<rect width="{cell}" height="{cell}" rx="6" fill="#ffffff" fill-opacity="0.06"/></pattern>' + flame_defs)
     body = (
         f'<rect x="0.5" y="0.5" width="1199" height="{h - 1}" rx="31.5" fill="url(#tile)" stroke="#ffffff" stroke-opacity="0.1"/>'
-        f'<g font-weight="600"><text x="48" y="84" font-size="22" fill="url(#ai)">{tr("Задачник", "Problem set")} · {no}1 — {no}{ACMP_TOTAL}</text>'
-        '<text x="46" y="146" font-size="54" font-weight="700" letter-spacing="-1.5" fill="url(#titanium)">acmp.ru</text>'
+        f'<g font-weight="600"><text x="48" y="84" font-size="22" fill="url(#ai)">acmp.ru · {no}1 — {no}{ACMP_TOTAL}</text>'
+        f'<text x="46" y="146" font-size="54" font-weight="700" letter-spacing="-1.5" fill="url(#titanium)">{tr("Задачник", "Problem set")}</text>'
         f'<text x="1152" y="146" text-anchor="end"><tspan font-size="54" font-weight="700" letter-spacing="-1.5" fill="url(#ai)">{len(solved)}</tspan>'
         f'<tspan font-size="30" fill="#86868b"> / {ACMP_TOTAL}</tspan></text>{flame_body}'
         f'<rect x="{x0}" y="{y0}" width="{ACMP_COLS * pitch}" height="{rows * pitch}" fill="url(#cell)"/>'
@@ -544,7 +553,7 @@ h1 { margin: 40px 0 6px; font-size: 54px; letter-spacing: -1.2px; line-height: 1
 <p class="sub">$sub</p>
 <div class="card">
   <div class="head">
-    <div><div class="label">$label</div><div class="site">acmp.ru</div></div>
+    <div><div class="label">$label</div><div class="site">$site</div></div>
     <div class="right">$streak<div class="count"><b>$solved</b> / $total</div></div>
   </div>
   <div class="grid" id="grid"></div>
@@ -583,7 +592,7 @@ grid.addEventListener('mouseleave', function () { tip.style.opacity = 0; });
 
 
 def acmp_page(problems, streak):
-    """Живая сетка «Первые 1000» для GitHub Pages: у курсора — номер и название задачи, клик — файл с решением.
+    """Живая сетка задач acmp для GitHub Pages: у курсора — номер и название задачи, клик — файл с решением.
     В README картинка неинтерактивна, поэтому карточка ведёт сюда. Английская — docs/index.html, русская — docs/ru/."""
     solved = [p for p in problems if p['status'] == 'done']
     data = {p['id']: dict(name=p['name'], level=p['level'], status=p['status'], color=cell_color(p),
@@ -602,13 +611,13 @@ def acmp_page(problems, streak):
     latest = (f'{tr("Последняя решённая — ", "Last solved — ")}<b>{no}{last["id"]} · {esc(last["name"])}</b>'
               if solved else tr('Первая задача — впереди', 'The first problem is still ahead'))
     page = PAGE.substitute(
-        lang=LANG, title=tr('Первые 1000 · olymp', 'First 1000 · olymp'), cols=ACMP_COLS, total=ACMP_TOTAL,
+        lang=LANG, title='acmp.ru · olymp', cols=ACMP_COLS, total=ACMP_TOTAL,
         repo=OLYMP_URL if LANG == 'en' else f'{OLYMP_URL}/blob/main/README.ru.md',
         switch=('<a href="../">English</a> &nbsp;|&nbsp; Русский' if LANG == 'ru' else 'English &nbsp;|&nbsp; <a href="ru/">Русский</a>'),
-        heading=tr('Первые 1000', 'First 1000'),
+        heading='acmp.ru', site=tr('Задачник', 'Problem set'),
         sub=tr('Наведи на клетку — увидишь задачу. Нажми — откроется решение.',
                'Hover over a cell to see the problem. Click it to open the solution.'),
-        label=f'{tr("Задачник", "Problem set")} · {no}1 — {no}{ACMP_TOTAL}', streak=streak_html, solved=len(solved),
+        label=f'acmp.ru · {no}1 — {no}{ACMP_TOTAL}', streak=streak_html, solved=len(solved),
         latest=latest, left=tr(f'осталось {ACMP_TOTAL - len(solved)}', f'{ACMP_TOTAL - len(solved)} left'),
         data=json.dumps(data, ensure_ascii=False).replace('</', '<\\/'), strings=json.dumps(strings, ensure_ascii=False))
     path = os.path.join(ROOT, 'docs', *(['ru'] if LANG == 'ru' else []), 'index.html')
@@ -632,7 +641,7 @@ def structure(contests):
                  (2, 'solutions/', tr('решения: A.py, B.py, …', 'solutions: A.py, B.py, …')),
                  (2, 'tests/', tr('примеры из условий', 'examples from the problems')),
                  (2, 'contest.json', tr('названия, темы, разборы', 'names, topics, explanations'))]
-    tree += [(1, 'first_1000/', tr('задачи acmp.ru: 0001.cpp, 0002.cpp, …', 'acmp.ru problems: 0001.cpp, 0002.cpp, …')),
+    tree += [(1, 'acmp.ru/', tr('задачи acmp.ru: 0001.cpp, 0002.cpp, …', 'acmp.ru problems: 0001.cpp, 0002.cpp, …')),
              (1, 'scripts/', tr('сборка README и проверка решений', 'README build and solution checks')),
              (1, 'assets/', tr('картинки для README', 'pictures for README'))]
     row, top, x0, ind = 46, 74, 48, 44
@@ -672,7 +681,7 @@ def terminal():
         [('$ ', p), ('python3 2026-icpc-qual/solutions/D.py ', t), ('<<<', op), (' 34', t)],
         [('8 15', out)], [],
         [('# C++', com)],
-        [('$ ', p), ('clang++ -std=c++17 -O2 first_1000/1231.cpp -o bubble', t)],
+        [('$ ', p), ('clang++ -std=c++17 -O2 acmp.ru/1231.cpp -o bubble', t)],
         [('$ ', p), ('echo ', t), ('"4  4 2 3 1"', s), (' | ', op), ('./bubble', t)],
         [('5', out)], [],
         [(tr('# Пересобрать README вручную', '# Rebuild README by hand'), com)],
@@ -741,7 +750,7 @@ def readme(contests, acmp_solved, total):
         f'{tr("Алтай Абдурахим — олимпиадное программирование", "Altay Abdurakhim — competitive programming")}" width="100%"></a>',
         '',
         f'<p align="center">\n  <a href="#contests">{tr("Контесты", "Contests")}&nbsp;›</a>&emsp;\n'
-        f'  <a href="#first-1000">{tr("Первые 1000", "First 1000")}&nbsp;›</a>&emsp;\n'
+        f'  <a href="#acmp">acmp.ru&nbsp;›</a>&emsp;\n'
         f'  <a href="#structure">{tr("Структура", "Structure")}&nbsp;›</a>&emsp;\n'
         f'  <a href="#run">{tr("Запуск", "Run")}&nbsp;›</a>\n</p>',
         '', '<br>', '',
@@ -755,7 +764,7 @@ def readme(contests, acmp_solved, total):
         out.append(f'<a href="{c["slug"]}"><img src="{img}/contests/{c["slug"]}/card.svg" '
                    f'alt="{esc(c["series"])} {esc(c["title"])}, {esc(date(c["date"]))}" width="100%"></a>\n')
     out += ['<br>\n<br>\n',
-            section_title('first-1000', 'first_1000', tr('Первые 1000', 'First 1000'), img),
+            section_title('acmp', 'first_1000', 'acmp.ru', img),
             f'<a href="{PAGES_URL}{"ru/" if LANG == "ru" else ""}"><img src="{img}/first_1000.svg" alt="'
             + tr(f'Задачи acmp.ru: решено {acmp_solved} из {ACMP_TOTAL}',
                  f'acmp.ru problems: {acmp_solved} of {ACMP_TOTAL} solved')
@@ -769,7 +778,7 @@ def readme(contests, acmp_solved, total):
             '',
             f'<details>\n<summary>{tr("Скопировать команды", "Copy the commands")}</summary>\n<br>\n\n```bash\n# Python\n'
             'python3 2026-icpc-qual/solutions/D.py <<< 34\n# 8 15\n\n# C++\n'
-            'clang++ -std=c++17 -O2 first_1000/1231.cpp -o bubble\necho "4  4 2 3 1" | ./bubble\n# 5\n\n'
+            'clang++ -std=c++17 -O2 acmp.ru/1231.cpp -o bubble\necho "4  4 2 3 1" | ./bubble\n# 5\n\n'
             f'{tr("# Пересобрать README вручную", "# Rebuild README by hand")}\npython3 scripts/build.py\n```\n\n</details>',
             '', '<br>', '',
             '<img src="assets/footer.svg" alt="Stay hungry. Stay foolish. — Steve Jobs, 1955–2011" width="100%">',
@@ -803,7 +812,7 @@ def build(lang, contests, acmp, streak):
           [tr('Нажми на карточку — откроются условия и решения.', 'Click a card to open the problems and solutions.'),
            tr('«Решена» — проходит все примеры из условия, проверяется автоматически.',
               '“Solved” means it passes all examples from the problem. This is checked automatically.')])
-    title('first_1000', tr('Первые 1000', 'First 1000'),
+    title('first_1000', 'acmp.ru',
           [tr(f'Все задачи acmp.ru по порядку, от №1 до №{ACMP_TOTAL}. Нажми на карточку — откроются решения.',
               f'All acmp.ru problems in order, from #1 to #{ACMP_TOTAL}. Click the card to open the solutions.'),
            tr('Каждая клетка — задача. Зелёная — решена: чем ярче, тем сложнее задача.',

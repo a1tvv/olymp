@@ -5,7 +5,7 @@
 
 <p align="center">
   <a href="#contests">Контесты&nbsp;›</a>&emsp;
-  <a href="#first-1000">Первые 1000&nbsp;›</a>&emsp;
+  <a href="#acmp">acmp.ru&nbsp;›</a>&emsp;
   <a href="#structure">Структура&nbsp;›</a>&emsp;
   <a href="#run">Запуск&nbsp;›</a>
 </p>
@@ -29,8 +29,8 @@
 <br>
 <br>
 
-<a name="first-1000"></a>
-<img src="assets/titles/first_1000.svg" alt="Первые 1000" width="100%">
+<a name="acmp"></a>
+<img src="assets/titles/first_1000.svg" alt="acmp.ru" width="100%">
 
 <a href="https://a1tvv.github.io/olymp/ru/"><img src="assets/first_1000.svg" alt="Задачи acmp.ru: решено 9 из 2379" width="100%"></a>
 
@@ -60,7 +60,7 @@ python3 2026-icpc-qual/solutions/D.py <<< 34
 # 8 15
 
 # C++
-clang++ -std=c++17 -O2 first_1000/1231.cpp -o bubble
+clang++ -std=c++17 -O2 acmp.ru/1231.cpp -o bubble
 echo "4  4 2 3 1" | ./bubble
 # 5
 
