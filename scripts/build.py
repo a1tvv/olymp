@@ -496,7 +496,7 @@ def acmp_card(problems, streak):
         f'<text x="1152" y="{fy}" font-size="22" fill="#86868b" text-anchor="end">'
         f'{tr(f"осталось {ACMP_TOTAL - len(solved)}", f"{ACMP_TOTAL - len(solved)} left")}</text></g>'
     )
-    write_svg('first_1000.svg', 1200, h, label, defs, body)
+    write_svg('acmp.svg', 1200, h, label, defs, body)
 
 
 PAGE = Template('''<!doctype html>
@@ -764,8 +764,8 @@ def readme(contests, acmp_solved, total):
         out.append(f'<a href="{c["slug"]}"><img src="{img}/contests/{c["slug"]}/card.svg" '
                    f'alt="{esc(c["series"])} {esc(c["title"])}, {esc(date(c["date"]))}" width="100%"></a>\n')
     out += ['<br>\n<br>\n',
-            section_title('acmp', 'first_1000', 'acmp.ru', img),
-            f'<a href="{PAGES_URL}{"ru/" if LANG == "ru" else ""}"><img src="{img}/first_1000.svg" alt="'
+            section_title('acmp', 'acmp', 'acmp.ru', img),
+            f'<a href="{PAGES_URL}{"ru/" if LANG == "ru" else ""}"><img src="{img}/acmp.svg" alt="'
             + tr(f'Задачи acmp.ru: решено {acmp_solved} из {ACMP_TOTAL}',
                  f'acmp.ru problems: {acmp_solved} of {ACMP_TOTAL} solved')
             + '" width="100%"></a>\n',
@@ -812,7 +812,7 @@ def build(lang, contests, acmp, streak):
           [tr('Нажми на карточку — откроются условия и решения.', 'Click a card to open the problems and solutions.'),
            tr('«Решена» — проходит все примеры из условия, проверяется автоматически.',
               '“Solved” means it passes all examples from the problem. This is checked automatically.')])
-    title('first_1000', 'acmp.ru',
+    title('acmp', 'acmp.ru',
           [tr(f'Все задачи acmp.ru по порядку, от №1 до №{ACMP_TOTAL}. Нажми на карточку — откроются решения.',
               f'All acmp.ru problems in order, from #1 to #{ACMP_TOTAL}. Click the card to open the solutions.'),
            tr('Каждая клетка — задача. Зелёная — решена: чем ярче, тем сложнее задача.',
