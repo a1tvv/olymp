@@ -20,11 +20,13 @@
 using namespace std;
 
 int main() {
-    int n;
+    int n;    
+    int t = 0;
     cin >> n;
     vector<int> massive;
 
     for (int i=0; i<n; i++) {
-        massive.push_back(n);
+        cin >> t;
+        massive.push_back(t);
     }
 }
