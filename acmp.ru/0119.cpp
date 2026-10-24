@@ -15,9 +15,16 @@
 //   4 / 10 20 30 / 7 30 00 / 23 59 59 / 13 30 30 → 7 30 0 / 10 20 30 / 13 30 30 / 23 59 59
 
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
 int main() {
-    
+    int n;
+    cin >> n;
+    vector<int> massive;
+
+    for (int i=0; i<n; i++) {
+        massive.push_back(n);
+    }
 }
