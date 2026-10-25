@@ -8,22 +8,17 @@
 3. Собирает две версии: английскую (README.md, картинки в assets/en) — её GitHub показывает по умолчанию,
    и русскую (README.ru.md, картинки в assets). Сверху у обеих — ссылка-переключатель.
 
-4. Рисует огонёк серии, как в TikTok: дни подряд с коммитами (по времени Бишкека), см. load_streak.
-
-Запуск: python3 scripts/build.py  (git-хук запускает его с --commit при каждом коммите)
+Запуск: python3 scripts/build.py  (git-хук запускает его при каждом коммите)
 """
 import glob
 import html
 import json
-import math
 import os
 import re
 import shutil
 import subprocess
 import sys
 import tempfile
-from collections import Counter
-from datetime import datetime, timedelta, timezone
 from string import Template
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -71,8 +66,6 @@ ACMP_LEVEL = re.compile(r'// Сложность: (\d+)%')      # третья с
 # решённая задача: чем сложнее, тем ярче зелёный — как в графике коммитов GitHub; (сложность до …%, цвет)
 ACMP_GREENS = ((10, '#1a5c2e'), (20, '#1f8a3d'), (35, '#2cb84f'), (101, '#4be36b'))
 ACMP_EXAMPLE = re.compile(r'//\s{2,}(.+?)\s+→\s+(.+)')  # «//   2 3 → 5» в шапке; « / » — новая строка
-TZ = timezone(timedelta(hours=6))  # Бишкек: по нему считаются дни серии
-FLAME_FROM, FLAME_PURPLE, FLAME_DEAD = 3, 100, 3  # огонёк с 3-го дня, фиолетовый со 100-го, гаснет после 3 пустых дней
 AI_STOPS = ('<stop offset="0" stop-color="#ff9f0a"/><stop offset="0.35" stop-color="#ff375f"/>'
             '<stop offset="0.7" stop-color="#bf5af2"/><stop offset="1" stop-color="#0a84ff"/>')
 TILE = ('<linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">'
@@ -186,29 +179,6 @@ def load_acmp(workdir):
         problems.append(dict(id=int(head[1]), name=head[2], level=level, file=name, time=touched.get(name, 0),
                              status='done' if ok else 'draft'))
     return sorted(problems, key=lambda p: p['id'])
-
-
-def load_streak(committing):
-    """Серия дней с коммитами — огонёк как в TikTok. Пропустил день — огонёк серый,
-    FLAME_DEAD дней подряд без коммитов — гаснет, и серия начинается заново.
-    Коммиты бота не считаются. committing — идёт коммит, его тоже засчитываем сегодняшним днём."""
-    log = subprocess.run(['git', 'log', '--format=%at %ae'], cwd=ROOT, capture_output=True, text=True).stdout
-    per_day = Counter()
-    for line in log.splitlines():
-        ts, email = line.split(' ', 1)
-        if '[bot]' not in email:
-            per_day[datetime.fromtimestamp(int(ts), TZ).date()] += 1
-    today = datetime.now(TZ).date()
-    if committing:
-        per_day[today] += 1
-    chain = []
-    for day in sorted(per_day, reverse=True):
-        if ((chain[-1] if chain else today) - day).days - 1 >= FLAME_DEAD:
-            break
-        chain.append(day)
-    if len(chain) < FLAME_FROM:
-        return None
-    return dict(days=len(chain), commits=sum(per_day[d] for d in chain), gray=(today - chain[0]).days > 1)
 
 
 def load():
@@ -395,56 +365,6 @@ def contest_card(c):
     write_svg(f'contests/{c["slug"]}/card.svg', 1200, 370, f'{c["series"]} {c["title"]}, {date(c["date"])}: {summary}', defs, body)
 
 
-FLAME_OUTER = ('M52 2C60 26 88 40 90 74C92 104 72 126 50 126C28 126 8 108 10 80C11 62 20 50 30 40'
-               'C30 52 34 60 40 64C38 40 44 20 52 2Z')  # рисунок в квадрате 100×128
-FLAME_INNER = ('M52 52C58 66 72 74 72 94C72 110 62 120 50 120C38 120 28 110 30 96C31 86 38 80 42 74'
-               'C44 84 48 88 52 90C50 78 50 64 52 52Z')
-
-
-def mix(a, b, t):
-    """Цвет между a и b: t=0 — a, t=1 — b."""
-    a, b = ([int(c[i:i + 2], 16) for i in (1, 3, 5)] for c in (a, b))
-    return '#' + ''.join(f'{round(x + (y - x) * t):02x}' for x, y in zip(a, b))
-
-
-def plural_days(n):
-    if LANG == 'en':
-        return f'{n} day' + ('' if n == 1 else 's')
-    if n % 10 == 1 and n % 100 != 11:
-        return f'{n} день'
-    return f'{n} дня' if 2 <= n % 10 <= 4 and not 12 <= n % 100 <= 14 else f'{n} дней'
-
-
-def flame(right, bottom, streak):
-    """Огонёк серии: чем длиннее серия — тем желтее (со 100-го дня фиолетовый), чем больше коммитов — тем крупнее.
-    Ставится правым краем к right. Возвращает (defs, рисунок, центр, левый край, цвет подписи)."""
-    h = 28 + 12 * min(1, math.log(1 + streak['commits']) / math.log(501))
-    s = h / 128
-    cx = right - 41 * s  # видимая ширина рисунка — 82 из 100
-    if streak['gray']:
-        top, bot, core_top, core_bot, glow = '#aeaeb2', '#48484a', '#e5e5ea', '#8e8e93', None
-    elif streak['days'] >= FLAME_PURPLE:
-        top, bot, core_top, core_bot, glow = '#e0a3ff', '#7d3bd1', '#ffffff', '#f0b8ff', '#bf5af2'
-    else:
-        t = min(1, (streak['days'] - FLAME_FROM) / (FLAME_PURPLE - 1 - FLAME_FROM))
-        top, bot = mix('#ff9f0a', '#ffd60a', t), mix('#ff3b30', '#ff9f0a', t)
-        core_top, core_bot, glow = '#fff7d6', mix('#ffcc00', '#ffe680', t), top
-    defs = (f'<linearGradient id="flo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{top}"/>'
-            f'<stop offset="1" stop-color="{bot}"/></linearGradient>'
-            f'<linearGradient id="fli" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{core_top}"/>'
-            f'<stop offset="1" stop-color="{core_bot}"/></linearGradient>'
-            f'<filter id="flg" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="{h * 0.18:.1f}"/></filter>')
-    flicker = ('' if streak['gray'] else  # серый не мерцает
-               '<animateTransform attributeName="transform" type="scale" values="1 1;1.04 0.96;0.97 1.04;1 1" '
-               'dur="1.8s" repeatCount="indefinite"/>')
-    body = (f'<g transform="translate({cx:.1f} {bottom:.1f})">'
-            + (f'<ellipse cx="0" cy="{-46 * s:.1f}" rx="{40 * s:.1f}" ry="{48 * s:.1f}" fill="{glow}" opacity="0.45" '
-               'filter="url(#flg)"/>' if glow else '')
-            + f'<g>{flicker}<g transform="scale({s:.4f}) translate(-50 -126)">'
-            f'<path d="{FLAME_OUTER}" fill="url(#flo)"/><path d="{FLAME_INNER}" fill="url(#fli)"/></g></g></g>')
-    return defs, body, cx, cx - 41 * s, '#8e8e93' if streak['gray'] else top
-
-
 def cell_color(p):
     """Цвет клетки задачи: решённая — зелёный по сложности (нет сложности — средний), черновик — оранжевый."""
     if p['status'] != 'done':
@@ -452,9 +372,9 @@ def cell_color(p):
     return next(c for limit, c in ACMP_GREENS if (p['level'] or 20) < limit)
 
 
-def acmp_card(problems, streak):
+def acmp_card(problems):
     """Сетка: по клетке на каждую задачу acmp, решённые горят зелёным.
-    В правом верхнем углу — огонёк серии «N дней подряд», под ним счётчик решённых."""
+    В правом верхнем углу — счётчик решённых."""
     solved = [p for p in problems if p['status'] == 'done']
     pitch = 1100 / ACMP_COLS  # сетка во всю ширину карточки
     cell, x0, y0 = round(pitch * 0.82, 1), 52, 196
@@ -472,24 +392,17 @@ def acmp_card(problems, streak):
               if solved else f'<tspan fill="#86868b">{tr("Первая задача — впереди", "The first problem is still ahead")}</tspan>')
     fy = y0 + grid_h + 62
     h = fy + 46
-    flame_defs = flame_body = ''
-    if streak:  # огонёк у правого края, подпись «N дней подряд» слева от него
-        flame_defs, flame_body, _, left, color = flame(1152, 91, streak)
-        flame_body += (f'<text x="{left - 8:.1f}" y="84" font-size="22" fill="{color}" text-anchor="end">'
-                       f'{plural_days(streak["days"])} {tr("подряд", "in a row")}</text>')
     label = tr(f'Задачи acmp.ru: решено {len(solved)} из {ACMP_TOTAL}',
                f'acmp.ru problems: {len(solved)} of {ACMP_TOTAL} solved')
-    if streak:
-        label += tr(f'. Серия: {plural_days(streak["days"])} подряд', f'. Streak: {plural_days(streak["days"])} in a row')
     defs = (TILE + TITANIUM + f'<linearGradient id="ai" x1="0" y1="0" x2="1" y2="0">{AI_STOPS}</linearGradient>'
             f'<pattern id="cell" x="{x0}" y="{y0}" width="{pitch}" height="{pitch}" patternUnits="userSpaceOnUse">'
-            f'<rect width="{cell}" height="{cell}" rx="6" fill="#ffffff" fill-opacity="0.06"/></pattern>' + flame_defs)
+            f'<rect width="{cell}" height="{cell}" rx="6" fill="#ffffff" fill-opacity="0.06"/></pattern>')
     body = (
         f'<rect x="0.5" y="0.5" width="1199" height="{h - 1}" rx="31.5" fill="url(#tile)" stroke="#ffffff" stroke-opacity="0.1"/>'
         f'<g font-weight="600"><text x="48" y="84" font-size="22" fill="url(#ai)">acmp.ru · {no}1 — {no}{ACMP_TOTAL}</text>'
         f'<text x="46" y="146" font-size="54" font-weight="700" letter-spacing="-1.5" fill="url(#titanium)">{tr("Задачник", "Problem set")}</text>'
         f'<text x="1152" y="146" text-anchor="end"><tspan font-size="54" font-weight="700" letter-spacing="-1.5" fill="url(#ai)">{len(solved)}</tspan>'
-        f'<tspan font-size="30" fill="#86868b"> / {ACMP_TOTAL}</tspan></text>{flame_body}'
+        f'<tspan font-size="30" fill="#86868b"> / {ACMP_TOTAL}</tspan></text>'
         f'<rect x="{x0}" y="{y0}" width="{ACMP_COLS * pitch}" height="{rows * pitch}" fill="url(#cell)"/>'
         f'<rect x="{x0}" y="{y0 + rows * pitch}" width="{tail * pitch}" height="{pitch}" fill="url(#cell)"/>{cells}'
         f'<text x="48" y="{fy}" font-size="22" fill="#f5f5f7">{latest}</text>'
@@ -524,8 +437,6 @@ h1 { margin: 40px 0 6px; font-size: 54px; letter-spacing: -1.2px; line-height: 1
 .site { font-size: 54px; font-weight: 700; letter-spacing: -1.5px; line-height: 1.15; color: transparent;
         background: linear-gradient(#fff 20%, #8e8e93); -webkit-background-clip: text; background-clip: text; }
 .right { text-align: right; }
-.streak { display: inline-flex; align-items: flex-end; gap: 6px; font-size: 20px; }
-.streak svg { overflow: visible; }
 .count { font-size: 30px; color: #86868b; line-height: 1.15; }
 .count b { font-size: 54px; font-weight: 700; letter-spacing: -1.5px; color: transparent;
            background: linear-gradient(90deg, #ff9f0a, #ff375f 35%, #bf5af2 70%, #0a84ff); -webkit-background-clip: text; background-clip: text; }
@@ -541,7 +452,7 @@ h1 { margin: 40px 0 6px; font-size: 54px; letter-spacing: -1.2px; line-height: 1
 @media (max-width: 760px) {
   h1 { font-size: 36px; } .sub { font-size: 16px; }
   .card { padding: 22px 16px; border-radius: 22px; } .head { flex-wrap: wrap; } .right { text-align: left; }
-  .site, .count b { font-size: 34px; } .count { font-size: 20px; } .label, .streak { font-size: 15px; }
+  .site, .count b { font-size: 34px; } .count { font-size: 20px; } .label { font-size: 15px; }
   .grid { gap: 2px; margin-top: 20px; } .foot { font-size: 14px; flex-direction: column; gap: 4px; }
 }
 </style>
@@ -554,7 +465,7 @@ h1 { margin: 40px 0 6px; font-size: 54px; letter-spacing: -1.2px; line-height: 1
 <div class="card">
   <div class="head">
     <div><div class="label">$label</div><div class="site">$site</div></div>
-    <div class="right">$streak<div class="count"><b>$solved</b> / $total</div></div>
+    <div class="right"><div class="count"><b>$solved</b> / $total</div></div>
   </div>
   <div class="grid" id="grid"></div>
   <div class="foot"><div>$latest</div><div>$left</div></div>
@@ -591,7 +502,7 @@ grid.addEventListener('mouseleave', function () { tip.style.opacity = 0; });
 ''')
 
 
-def acmp_page(problems, streak):
+def acmp_page(problems):
     """Живая сетка задач acmp для GitHub Pages: у курсора — номер и название задачи, клик — файл с решением.
     В README картинка неинтерактивна, поэтому карточка ведёт сюда. Английская — docs/index.html, русская — docs/ru/."""
     solved = [p for p in problems if p['status'] == 'done']
@@ -601,11 +512,6 @@ def acmp_page(problems, streak):
                    open=tr('открыть решение ›', 'open the solution ›'),
                    draft=tr('черновик: пока не проходит примеры ›', 'draft: does not pass the examples yet ›'),
                    todo=tr('ещё не решена', 'not solved yet'))
-    streak_html = ''
-    if streak:
-        defs, body, _, _, color = flame(26, 40, streak)
-        streak_html = (f'<div class="streak" style="color:{color}">{plural_days(streak["days"])} {tr("подряд", "in a row")}'
-                       f'<svg width="26" height="40" viewBox="0 0 26 40"><defs>{defs}</defs>{body}</svg></div>')
     no = tr('№', '#')
     last = max(solved, key=lambda p: p['time'], default=None)
     latest = (f'{tr("Последняя решённая — ", "Last solved — ")}<b>{no}{last["id"]} · {esc(last["name"])}</b>'
@@ -617,7 +523,7 @@ def acmp_page(problems, streak):
         heading='acmp.ru', site=tr('Задачник', 'Problem set'),
         sub=tr('Наведи на клетку — увидишь задачу. Нажми — откроется решение.',
                'Hover over a cell to see the problem. Click it to open the solution.'),
-        label=f'acmp.ru · {no}1 — {no}{ACMP_TOTAL}', streak=streak_html, solved=len(solved),
+        label=f'acmp.ru · {no}1 — {no}{ACMP_TOTAL}', solved=len(solved),
         latest=latest, left=tr(f'осталось {ACMP_TOTAL - len(solved)}', f'{ACMP_TOTAL - len(solved)} left'),
         data=json.dumps(data, ensure_ascii=False).replace('</', '<\\/'), strings=json.dumps(strings, ensure_ascii=False))
     path = os.path.join(ROOT, 'docs', *(['ru'] if LANG == 'ru' else []), 'index.html')
@@ -789,7 +695,7 @@ def readme(contests, acmp_solved, total):
         f.write('\n'.join(out))
 
 
-def build(lang, contests, acmp, streak):
+def build(lang, contests, acmp):
     """Рисует картинки и README на одном языке: 'ru' — assets и README.ru.md, 'en' — assets/en и README.md."""
     global LANG, ASSETS
     LANG = lang
@@ -806,8 +712,8 @@ def build(lang, contests, acmp, streak):
     stats(total, from_contests, from_acmp, contests, soon)
     for c in contests:
         contest_card(c)
-    acmp_card(acmp, streak)
-    acmp_page(acmp, streak)
+    acmp_card(acmp)
+    acmp_page(acmp)
     title('contests', tr('Контесты', 'Contests'),
           [tr('Нажми на карточку — откроются условия и решения.', 'Click a card to open the problems and solutions.'),
            tr('«Решена» — проходит все примеры из условия, проверяется автоматически.',
@@ -816,8 +722,7 @@ def build(lang, contests, acmp, streak):
           [tr(f'Все задачи acmp.ru по порядку, от №1 до №{ACMP_TOTAL}. Нажми на карточку — откроются решения.',
               f'All acmp.ru problems in order, from #1 to #{ACMP_TOTAL}. Click the card to open the solutions.'),
            tr('Каждая клетка — задача. Зелёная — решена: чем ярче, тем сложнее задача.',
-              'Each cell is a problem. Green means solved: the brighter, the harder the problem.'),
-           tr('Огонёк — сколько дней подряд я решаю задачи.', 'The flame shows how many days in a row I have been solving.')])
+              'Each cell is a problem. Green means solved: the brighter, the harder the problem.')])
     title('structure', tr('Структура', 'Structure'), [tr('Всё на своих местах.', 'Everything in its place.')])
     title('run', tr('Запуск', 'Run'), [tr('Скопировал. Запустил. Готово.', 'Copy. Run. Done.')])
     structure(contests)
@@ -831,16 +736,13 @@ def build(lang, contests, acmp, streak):
 
 def main():
     contests, acmp = load()
-    streak = load_streak('--commit' in sys.argv)
-    build('ru', contests, acmp, streak)
-    from_contests, from_acmp, total = build('en', contests, acmp, streak)
+    build('ru', contests, acmp)
+    from_contests, from_acmp, total = build('en', contests, acmp)
 
     for c in contests:
         print(c['slug'] + ': ' + '  '.join(f'{p["letter"]}={STATUS[p["status"]]["label"]}' for p in c['problems']))
     print('acmp: ' + ('  '.join(f'№{p["id"]}={STATUS[p["status"]]["label"]}' for p in acmp) or 'пока пусто'))
     print(f'Решено всего: {total} (контесты {from_contests} + acmp {from_acmp})')
-    print(f'Серия: {streak["days"]} дн., коммитов {streak["commits"]}' + (', огонёк серый' if streak['gray'] else '')
-          if streak else 'Серия: огонька нет')
 
 
 if __name__ == '__main__':

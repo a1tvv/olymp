@@ -1,13 +1,10 @@
 # Подстраховка для git-хука: если коммит сделан не с этого мака (например, через сайт GitHub),
 # проверяет решения и пересобирает README. Если README уже актуален — ничего не коммитит.
-# Плюс раз в сутки, в 00:05 по Бишкеку: огонёк серии должен сереть и гаснуть, даже когда коммитов нет.
 name: README
 
 on:
   push:
     branches: [main]
-  schedule:
-    - cron: "5 18 * * *"
   workflow_dispatch:
 
 permissions:
@@ -19,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # вся история: по ней считается серия дней с коммитами
+          fetch-depth: 0  # вся история: по ней ищется последняя решённая задача acmp
 
       - name: Проверить решения и пересобрать README
         run: python3 scripts/build.py

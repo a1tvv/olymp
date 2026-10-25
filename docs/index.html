@@ -23,8 +23,6 @@ h1 { margin: 40px 0 6px; font-size: 54px; letter-spacing: -1.2px; line-height: 1
 .site { font-size: 54px; font-weight: 700; letter-spacing: -1.5px; line-height: 1.15; color: transparent;
         background: linear-gradient(#fff 20%, #8e8e93); -webkit-background-clip: text; background-clip: text; }
 .right { text-align: right; }
-.streak { display: inline-flex; align-items: flex-end; gap: 6px; font-size: 20px; }
-.streak svg { overflow: visible; }
 .count { font-size: 30px; color: #86868b; line-height: 1.15; }
 .count b { font-size: 54px; font-weight: 700; letter-spacing: -1.5px; color: transparent;
            background: linear-gradient(90deg, #ff9f0a, #ff375f 35%, #bf5af2 70%, #0a84ff); -webkit-background-clip: text; background-clip: text; }
@@ -40,7 +38,7 @@ h1 { margin: 40px 0 6px; font-size: 54px; letter-spacing: -1.2px; line-height: 1
 @media (max-width: 760px) {
   h1 { font-size: 36px; } .sub { font-size: 16px; }
   .card { padding: 22px 16px; border-radius: 22px; } .head { flex-wrap: wrap; } .right { text-align: left; }
-  .site, .count b { font-size: 34px; } .count { font-size: 20px; } .label, .streak { font-size: 15px; }
+  .site, .count b { font-size: 34px; } .count { font-size: 20px; } .label { font-size: 15px; }
   .grid { gap: 2px; margin-top: 20px; } .foot { font-size: 14px; flex-direction: column; gap: 4px; }
 }
 </style>
@@ -53,7 +51,7 @@ h1 { margin: 40px 0 6px; font-size: 54px; letter-spacing: -1.2px; line-height: 1
 <div class="card">
   <div class="head">
     <div><div class="label">acmp.ru · #1 — #2379</div><div class="site">Problem set</div></div>
-    <div class="right"><div class="streak" style="color:#ffa00a">5 days in a row<svg width="26" height="40" viewBox="0 0 26 40"><defs><linearGradient id="flo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffa00a"/><stop offset="1" stop-color="#ff3d2f"/></linearGradient><linearGradient id="fli" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff7d6"/><stop offset="1" stop-color="#ffcd03"/></linearGradient><filter id="flg" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="6.3"/></filter></defs><g transform="translate(14.8 40.0)"><ellipse cx="0" cy="-12.6" rx="11.0" ry="13.2" fill="#ffa00a" opacity="0.45" filter="url(#flg)"/><g><animateTransform attributeName="transform" type="scale" values="1 1;1.04 0.96;0.97 1.04;1 1" dur="1.8s" repeatCount="indefinite"/><g transform="scale(0.2744) translate(-50 -126)"><path d="M52 2C60 26 88 40 90 74C92 104 72 126 50 126C28 126 8 108 10 80C11 62 20 50 30 40C30 52 34 60 40 64C38 40 44 20 52 2Z" fill="url(#flo)"/><path d="M52 52C58 66 72 74 72 94C72 110 62 120 50 120C38 120 28 110 30 96C31 86 38 80 42 74C44 84 48 88 52 90C50 78 50 64 52 52Z" fill="url(#fli)"/></g></g></g></svg></div><div class="count"><b>9</b> / 2379</div></div>
+    <div class="right"><div class="count"><b>9</b> / 2379</div></div>
   </div>
   <div class="grid" id="grid"></div>
   <div class="foot"><div>Last solved — <b>#8 · Арифметика</b></div><div>2370 left</div></div>
