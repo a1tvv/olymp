@@ -32,13 +32,35 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
 string add(string a, string b) {
     string result = "";
 
+    int i = a.length() -1;
+    int j = b.length() -1;
 
+    int carry = 0;
+
+    while (i>=0 or j>=0 or carry > 0) {
+        int sum = carry;
+
+        if (i >=0) {
+            sum += a[i] - '0';
+            i--;
+        }
+
+        if (j >=0) {
+            sum += b[j] - '0';
+            j--;
+        }
+
+        carry = sum/10;
+        result.push_back((sum%10) + '0');
+    }
+    reverse(result.begin(), result.end());
     return result;
 }
 
@@ -49,17 +71,16 @@ int main() {
     cin >> k;
     cin >> n;
 
-    vector<long long> ways(n+1, 0);
-    ways[0] = 1;
+    vector<string> ways(n+1, "0");
+    ways[0] = "1";
 
     for (int i=1; i<=n; i++) {
         for (int j=1; j<=k; j++) {
             if(i-j >=0) {
-                ways[i] += ways[i - j];
+                ways[i] = add(ways[i], ways[i - j]);
             }
         }
     }
-
     cout << ways[n];
 
 }
