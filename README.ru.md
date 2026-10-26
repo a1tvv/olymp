@@ -12,7 +12,7 @@
 
 <br>
 
-<img src="assets/stats.svg" alt="Решено задач: 15" width="100%">
+<img src="assets/stats.svg" alt="Решено задач: 16" width="100%">
 
 <br>
 <br>
@@ -34,7 +34,7 @@
 <a name="acmp"></a>
 <img src="assets/titles/acmp.svg" alt="acmp.ru" width="100%">
 
-<a href="https://a1tvv.github.io/olymp/ru/"><img src="assets/acmp.svg" alt="Задачи acmp.ru: решено 10 из 2379" width="100%"></a>
+<a href="https://a1tvv.github.io/olymp/ru/"><img src="assets/acmp.svg" alt="Задачи acmp.ru: решено 11 из 2385" width="100%"></a>
 
 <br>
 <br>
