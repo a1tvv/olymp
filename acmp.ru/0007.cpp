@@ -34,17 +34,10 @@ int main() {
     string biggest_num = nums[0];
 
     for (int i=0; i<3; i++) {
-        if (biggest_num < nums[1]) {
-            biggest_num = nums[1];
-        } else {
-            biggest_num = nums[2];
+
+        if (nums[i].size() > biggest_num.size()or nums[i].size() == biggest_num.size() and nums[i] > biggest_num) {
+            biggest_num = nums[i];
         }
     } cout << biggest_num;
 
-    // if (nums[0].size() > nums[1].size()) {
-    //     biggest_num = nums[0];
-    // } if (biggest_num.size() < nums[2].size()) {
-    //     biggest_num = nums[2];
-    // }
-    cout << biggest_num;
 }
