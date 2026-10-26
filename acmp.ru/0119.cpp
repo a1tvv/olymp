@@ -19,14 +19,47 @@
 
 using namespace std;
 
-int main() {
-    int n;    
-    int t = 0;
-    cin >> n;
-    vector<int> massive;
-
-    for (int i=0; i<n; i++) {
-        cin >> t;
-        massive.push_back(t);
+void compare(vector<int>& massive) {
+    for (int i=0; i<massive.size() - 1; i++) {
+        for (int j=0; j<massive.size() - i - 1; j++) {
+            if (massive[j] > massive[j + 1]) {
+                int sort = massive[j];
+                massive[j] = massive[j+1];
+                massive[j+1] = sort;
+            }
+        }
     }
+}
+
+
+int main() {
+    int t = 0;
+    cin >> t;
+    int h, m, s;
+    
+    vector<int> massive;
+    int sum;
+
+    for (int i=0; i<t; i++) {
+        cin >> h;
+        cin >> m;
+        cin >> s;
+        
+        h = h*3600;
+        m = m*60;
+
+        sum = h+s+m;
+        
+        massive.push_back(sum);
+    }
+
+    compare(massive);
+
+    for (int i = 0; i<massive.size(); i++) {
+        cout << massive[i]/3600 << " " 
+        << massive[i]%3600/60 << " " 
+        << massive[i]%3600%60 << " "
+        << endl;
+    }
+
 }
