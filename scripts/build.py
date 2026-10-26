@@ -19,6 +19,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from string import Template
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -139,7 +140,7 @@ def passes(cmd, data, expected):
     return result.returncode == 0 and result.stdout.split() == expected.split()
 
 
-def load_acmp(workdir):
+def load_acmp(workdir, committing):
     """Задачи из acmp.ru/: номер и название — из первой строки, примеры — из шапки.
     Берём только файлы, которые есть в git, чтобы в README не попали незакоммиченные решения."""
     files = subprocess.run(['git', 'ls-files', ACMP_DIR], cwd=ROOT, capture_output=True, text=True).stdout.split()
@@ -161,6 +162,12 @@ def load_acmp(workdir):
             if status.startswith('R'):
                 alias[paths[0]] = current
             names.append(current)
+    if committing:  # сам коммит ещё не создан: задачу из индекса считаем изменённой прямо сейчас
+        staged = subprocess.run(['git', 'diff', '--cached', '--name-only', '--', ACMP_DIR],
+                                cwd=ROOT, capture_output=True, text=True).stdout.split()
+        staged = [n for n in staged if n.endswith('.cpp')]
+        if len(staged) == 1:
+            touched[staged[0]] = int(time.time())
     problems = []
     for name in files:
         path = os.path.join(ROOT, name)
@@ -181,7 +188,7 @@ def load_acmp(workdir):
     return sorted(problems, key=lambda p: p['id'])
 
 
-def load():
+def load(committing):
     contests = []
     with tempfile.TemporaryDirectory() as workdir:
         for path in sorted(glob.glob(os.path.join(ROOT, '*', 'contest.json')), reverse=True):
@@ -192,7 +199,7 @@ def load():
             for p in contest['problems']:
                 p['status'] = judge(cdir, p['letter'], workdir)
             contests.append(contest)
-        acmp = load_acmp(workdir)
+        acmp = load_acmp(workdir, committing)
     return contests, acmp
 
 
@@ -735,7 +742,7 @@ def build(lang, contests, acmp):
 
 
 def main():
-    contests, acmp = load()
+    contests, acmp = load('--commit' in sys.argv)  # git-хук запускает сборку с --commit
     build('ru', contests, acmp)
     from_contests, from_acmp, total = build('en', contests, acmp)
 
