@@ -1,0 +1,15 @@
+{
+  "series": "Codeforces",
+  "title": "Round 1130 (Div. 2)",
+  "date": "26 октября 2026",
+  "year": 2026,
+  "problems": [
+    {"letter": "A", "name": "Максимизация одного MEX"},
+    {"letter": "B", "name": "Frogs Jump"},
+    {"letter": "C", "name": "Yet Another Black Cell Problem"},
+    {"letter": "D", "name": "Connecting the Conflicts"},
+    {"letter": "E", "name": "Memory Cell Interception"},
+    {"letter": "F", "name": "Tree Reduction Game"},
+    {"letter": "G", "name": "Ranges"}
+  ]
+}

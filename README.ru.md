@@ -24,6 +24,8 @@
 <a name="contests"></a>
 <img src="assets/titles/contests.svg" alt="Контесты" width="100%">
 
+<a href="CF-R(1130)"><img src="assets/contests/CF-R(1130)/card.svg" alt="Codeforces Round 1130 (Div. 2), 26 октября 2026" width="100%"></a>
+
 <a href="CF-R(1129)"><img src="assets/contests/CF-R(1129)/card.svg" alt="Codeforces Round 1129 (Div. 2), 24 октября 2026" width="100%"></a>
 
 <a href="2026-icpc-qual"><img src="assets/contests/2026-icpc-qual/card.svg" alt="ICPC NERC Kyrgyzstan Qualification, 3 октября 2026" width="100%"></a>
