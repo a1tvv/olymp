@@ -21,9 +21,32 @@
 //   5 / 0 1 0 0 0 / 1 0 1 1 0 / 0 1 0 0 0 / 0 1 0 0 0 / 0 0 0 0 0 → 3
 
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
 int main() {
+    int n;
+    cin >> n;
 
+    int count = 0;
+
+    vector<int> matrix;
+
+    int im;
+    for (int i = 0; i<n; i++){
+
+        for (int j=0; j<n; j++) {
+            cin >> im;
+            matrix.push_back(im);
+        }
+    }
+
+    for(int i=0; i<matrix.size(); i++) {
+        if (matrix[i] == 1) {
+            count++;
+        }
+    }
+
+    cout << count/2 << " ";
 }
