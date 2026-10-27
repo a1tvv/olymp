@@ -1,7 +1,7 @@
 <!-- Этот файл собирается автоматически: python3 scripts/build.py. Правки вручную перезапишутся. -->
 <p align="center"><a href="README.md">English</a> &nbsp;|&nbsp; <b>Русский</b></p>
 
-<a href="#contests"><img src="assets/banner.svg" alt="Алтай Абдурахим — олимпиадное программирование" width="100%"></a>
+<a href="#contests"><img src="assets/banner.svg" alt="Олимпиадное программирование" width="100%"></a>
 
 <p align="center">
   <a href="#contests">Контесты&nbsp;›</a>&emsp;

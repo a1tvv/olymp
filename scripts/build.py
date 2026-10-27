@@ -240,6 +240,35 @@ def rich(x, y, line, fs=21):
 
 # ───────────────────────── карточки ─────────────────────────
 
+def mix(a, b, t):
+    """Цвет между a и b: t=0 — a, t=1 — b."""
+    a, b = ([int(c[i:i + 2], 16) for i in (1, 3, 5)] for c in (a, b))
+    return '#' + ''.join(f'{round(x + (y - x) * t):02x}' for x, y in zip(a, b))
+
+
+RING_COLORS = ('#ff9f0a', '#ff375f', '#bf5af2', '#0a84ff', '#ff9f0a')  # оранжевый → розовый → фиолетовый → синий
+
+
+def ring_color(f):
+    """Цвет кольца в доле f (0…1) цикла: нужен, чтобы без анимации рамка тоже была цветной."""
+    pos = (f % 1) * (len(RING_COLORS) - 1)
+    i = int(pos)
+    return mix(RING_COLORS[i], RING_COLORS[i + 1], pos - i)
+
+
+def color_ring(width, n=48, dur=8):
+    """Рамка карточки 1200×600: кольцо из n дуг, у каждой цвет меняется по кругу палитры со сдвигом по фазе,
+    поэтому цвета бегут по часовой стрелке (путь прямоугольника идёт вправо от верхнего левого угла)."""
+    values = ';'.join(RING_COLORS)
+    out = ''
+    for i in range(n):
+        out += (f'<rect x="1.5" y="1.5" width="1197" height="597" rx="30.5" fill="none" stroke="{ring_color(-i / n)}" '
+                f'stroke-width="{width}" pathLength="{n}" stroke-dasharray="1.06 {n - 1.06:.2f}" stroke-dashoffset="{-i}">'
+                f'<animate attributeName="stroke" values="{values}" dur="{dur}s" begin="{i * dur / n - dur:.3f}s" '
+                'repeatCount="indefinite"/></rect>')
+    return out
+
+
 def banner(total):
     island = (
         '<rect x="530" y="30" width="140" height="46" rx="23" fill="#000000" stroke="#ffffff" stroke-opacity="0.16">'
@@ -254,10 +283,7 @@ def banner(total):
         '<text x="416" y="59.5" font-size="18" font-weight="600" fill="#ffffff">Accepted</text>'
         f'<text x="816" y="59.5" font-size="18" font-weight="600" fill="#30d158" text-anchor="end">{tr(f"решено {total}", f"{total} solved")}</text></g>'
     )
-    defs = (f'<linearGradient id="ai" x1="0" y1="0" x2="1" y2="1">{AI_STOPS}'
-            '<animateTransform attributeName="gradientTransform" type="rotate" from="0 0.5 0.5" to="360 0.5 0.5" '
-            'dur="9s" repeatCount="indefinite"/></linearGradient>'
-            f'<linearGradient id="aiText" x1="0" y1="0" x2="1" y2="0">{AI_STOPS}</linearGradient>' + TITANIUM +
+    defs = (f'<linearGradient id="aiText" x1="0" y1="0" x2="1" y2="0">{AI_STOPS}</linearGradient>' + TITANIUM +
             '<radialGradient id="spot" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffffff" stop-opacity="0.07"/>'
             '<stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>'
             '<filter id="edgeGlow" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="20"/></filter>'
@@ -265,16 +291,16 @@ def banner(total):
     body = (
         '<g clip-path="url(#card)"><rect width="1200" height="600" fill="#000000"/>'
         '<ellipse cx="600" cy="320" rx="560" ry="260" fill="url(#spot)"/>'
-        '<rect width="1200" height="600" rx="32" fill="none" stroke="url(#ai)" stroke-width="40" filter="url(#edgeGlow)" opacity="0.85"/>'
-        '<rect x="1.5" y="1.5" width="1197" height="597" rx="30.5" fill="none" stroke="url(#ai)" stroke-width="3"/></g>'
+        f'<g filter="url(#edgeGlow)" opacity="0.85">{color_ring(40)}</g>'
+        f'{color_ring(3)}</g>'
         + island +
-        f'<text x="600" y="206" text-anchor="middle" font-size="28" font-weight="600" fill="url(#aiText)">{tr("Олимпиадное программирование", "Competitive programming")}</text>'
-        f'<text x="600" y="318" text-anchor="middle" font-size="104" font-weight="700" letter-spacing="-3" fill="url(#titanium)">{tr("Алтай Абдурахим", "Altay Abdurakhim")}</text>'
-        f'<text x="600" y="392" text-anchor="middle" font-size="36" font-weight="600" fill="#86868b">{tr("Алгоритмы. Контесты. Разборы.", "Algorithms. Contests. Explanations.")}</text>'
-        f'<text x="600" y="466" text-anchor="middle" font-size="26" font-weight="500" fill="#2997ff">{tr("Смотреть решения ›", "See the solutions ›")}</text>'
+        # заголовок в две строки: в одну строку при таком размере слова не помещаются в 1200 пикселей
+        f'<text x="600" y="262" text-anchor="middle" font-size="104" font-weight="700" letter-spacing="-3" fill="url(#aiText)">{tr("Олимпиадное", "Competitive")}</text>'
+        f'<text x="600" y="372" text-anchor="middle" font-size="104" font-weight="700" letter-spacing="-3" fill="url(#aiText)">{tr("программирование", "programming")}</text>'
+        f'<text x="600" y="450" text-anchor="middle" font-size="36" font-weight="600" fill="#86868b">{tr("Алгоритмы. Контесты. Разборы.", "Algorithms. Contests. Explanations.")}</text>'
+        f'<text x="600" y="512" text-anchor="middle" font-size="26" font-weight="500" fill="#2997ff">{tr("Смотреть решения ›", "See the solutions ›")}</text>'
     )
-    write_svg('banner.svg', 1200, 600, tr('Алтай Абдурахим — олимпиадное программирование',
-                                          'Altay Abdurakhim — competitive programming'), defs, body)
+    write_svg('banner.svg', 1200, 600, tr('Олимпиадное программирование', 'Competitive programming'), defs, body)
 
 
 def stats(total, from_contests, from_acmp, contests, soon):
@@ -317,7 +343,9 @@ def stats(total, from_contests, from_acmp, contests, soon):
     body = (
         '<g font-weight="600">'
         '<g clip-path="url(#t1)"><rect width="590" height="540" fill="url(#tile)"/>'
-        '<circle cx="470" cy="470" r="150" fill="url(#ai)" opacity="0.35" filter="url(#blur)"/></g>'
+        '<circle cx="470" cy="470" r="150" fill="url(#ai)" opacity="0.35" filter="url(#blur)">'
+        '<animate attributeName="r" values="120;220;120" dur="5s" repeatCount="indefinite" calcMode="spline" '
+        'keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/></circle></g>'
         '<rect x="0.5" y="0.5" width="589" height="539" rx="31.5" fill="none" stroke="#ffffff" stroke-opacity="0.1"/>'
         f'<text x="48" y="86" font-size="24" fill="#86868b">{tr("Решено задач", "Problems solved")}</text>'
         f'<g font-size="{size}" font-weight="700" letter-spacing="-10" fill="url(#ai)">{numbers}</g>'
@@ -617,7 +645,9 @@ def terminal():
 def footer():
     defs = (TITANIUM + f'<linearGradient id="ai" x1="0" y1="0" x2="1" y2="0">{AI_STOPS}'
             '<animateTransform attributeName="gradientTransform" type="translate" values="-0.3 0;0.3 0;-0.3 0" dur="8s" repeatCount="indefinite"/>'
-            '</linearGradient><radialGradient id="spot" cx="0.5" cy="1" r="0.7"><stop offset="0" stop-color="#bf5af2" stop-opacity="0.22"/>'
+            '</linearGradient><radialGradient id="spot" cx="0.5" cy="1" r="0.7"><animate attributeName="r" values="0.4;1;0.4" dur="6s" '
+            'repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>'
+            '<stop offset="0" stop-color="#bf5af2" stop-opacity="0.22"/>'
             '<stop offset="1" stop-color="#bf5af2" stop-opacity="0"/></radialGradient>'
             '<clipPath id="card"><rect width="1200" height="380" rx="32"/></clipPath>')
     body = ('<g clip-path="url(#card)"><rect width="1200" height="380" fill="#000000"/><rect width="1200" height="380" fill="url(#spot)"/></g>'
@@ -632,7 +662,9 @@ def footer():
 def quote():
     defs = (TITANIUM + f'<linearGradient id="ai" x1="0" y1="0" x2="1" y2="0">{AI_STOPS}'
             '<animateTransform attributeName="gradientTransform" type="translate" values="-0.3 0;0.3 0;-0.3 0" dur="8s" repeatCount="indefinite"/>'
-            '</linearGradient><radialGradient id="spot" cx="0.5" cy="1" r="0.7"><stop offset="0" stop-color="#bf5af2" stop-opacity="0.22"/>'
+            '</linearGradient><radialGradient id="spot" cx="0.5" cy="1" r="0.7"><animate attributeName="r" values="0.4;1;0.4" dur="6s" '
+            'repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>'
+            '<stop offset="0" stop-color="#bf5af2" stop-opacity="0.22"/>'
             '<stop offset="1" stop-color="#bf5af2" stop-opacity="0"/></radialGradient>'
             '<clipPath id="card"><rect width="1200" height="380" rx="32"/></clipPath>')
     body = ('<g clip-path="url(#card)"><rect width="1200" height="380" fill="#000000"/><rect width="1200" height="380" fill="url(#spot)"/></g>'
@@ -660,7 +692,7 @@ def readme(contests, acmp_solved, total):
         switch,
         '',
         f'<a href="#contests"><img src="{img}/banner.svg" alt="'
-        f'{tr("Алтай Абдурахим — олимпиадное программирование", "Altay Abdurakhim — competitive programming")}" width="100%"></a>',
+        f'{tr("Олимпиадное программирование", "Competitive programming")}" width="100%"></a>',
         '',
         f'<p align="center">\n  <a href="#contests">{tr("Контесты", "Contests")}&nbsp;›</a>&emsp;\n'
         f'  <a href="#acmp">acmp.ru&nbsp;›</a>&emsp;\n'

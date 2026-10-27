@@ -1,7 +1,7 @@
 <!-- This file is built automatically: python3 scripts/build.py. Edits by hand will be lost. -->
 <p align="center"><b>English</b> &nbsp;|&nbsp; <a href="README.ru.md">Русский</a></p>
 
-<a href="#contests"><img src="assets/en/banner.svg" alt="Altay Abdurakhim — competitive programming" width="100%"></a>
+<a href="#contests"><img src="assets/en/banner.svg" alt="Competitive programming" width="100%"></a>
 
 <p align="center">
   <a href="#contests">Contests&nbsp;›</a>&emsp;
