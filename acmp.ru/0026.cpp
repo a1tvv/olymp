@@ -21,11 +21,25 @@
 using namespace std;
 
 int main() {
-    int x,y,r;
 
-    cin >> x;
-    cin >> y;
-    cin >> r;
+    int x1, y1, r1;
+    int x2, y2, r2;
 
+
+    cin >> x1 >> y1 >> r1;
+    cin >> x2 >> y2 >> r2;
+
+    int dx = x1 - x2;
+    int dy = y1 - y2;
+
+    int d=dx*dx + dy*dy;
+
+    if (d > (r1+r2)*(r1+r2) 
+        or
+        d < (r1-r2)*(r1-r2)) {
+        cout << "NO";
+    }else {
+        cout << "YES";
+    }
 
 }
