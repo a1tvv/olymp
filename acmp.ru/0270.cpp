@@ -46,73 +46,31 @@
 
 #include <iostream>
 #include <string>
-#include <cctype>
+
 using namespace std;
-
-bool isCppStyle(const string& s) {
-    if (s.empty()) return false;
-    if (s[0] == '_' || s.back() == '_') return false;
-
-    for (int i = 0; i < (int)s.size(); ++i) {
-        if (s[i] == '_') {
-            if (i + 1 >= (int)s.size() || s[i + 1] == '_') return false;
-        } else if (s[i] < 'a' || s[i] > 'z') {
-            return false;
-        }
-    }
-    return true;
-}
-
-bool isJavaStyle(const string& s) {
-    if (s.empty()) return false;
-    if (s[0] < 'a' || s[0] > 'z') return false;
-
-    for (int i = 0; i < (int)s.size(); ++i) {
-        if (s[i] == '_') return false;
-        if (!((s[i] >= 'a' && s[i] <= 'z') || (s[i] >= 'A' && s[i] <= 'Z'))) {
-            return false;
-        }
-    }
-    return true;
-}
-
-string toJava(const string& s) {
-    string res;
-    for (int i = 0; i < (int)s.size(); ++i) {
-        if (s[i] == '_') {
-            res += toupper(s[i + 1]);
-            ++i;
-        } else {
-            res += s[i];
-        }
-    }
-    return res;
-}
-
-string toCpp(const string& s) {
-    string res;
-    for (int i = 0; i < (int)s.size(); ++i) {
-        if (isupper((unsigned char)s[i])) {
-            res += '_';
-            res += tolower((unsigned char)s[i]);
-        } else {
-            res += s[i];
-        }
-    }
-    return res;
-}
 
 int main() {
     string s;
     cin >> s;
 
-    if (isCppStyle(s)) {
-        cout << toJava(s) << '\n';
-    } else if (isJavaStyle(s)) {
-        cout << toCpp(s) << '\n';
-    } else {
-        cout << "Error!" << '\n';
+    for (int i=0; i<s.size(); i++) {
+        char c = s[i];
     }
 
-    return 0;
+    bool has_underscore = false;
+    bool has_upper = false;
+
+    for (int i=0; i<s.size(); i++) {
+        char c = s[i];
+
+        if (c == '_') {
+            has_underscore = true;
+        }
+        if (c >= 'A' and c <= 'Z') {
+            has_upper = true;
+        }
+    }
+
+    cout << has_underscore << " " << has_upper;
+
 }
