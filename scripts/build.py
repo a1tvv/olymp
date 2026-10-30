@@ -182,7 +182,8 @@ def load_acmp(workdir, committing):
         examples = [(m[1].replace(' / ', '\n'), m[2].replace(' / ', '\n'))
                     for m in map(ACMP_EXAMPLE.fullmatch, lines) if m]
         cmd = command(path, workdir)
-        ok = cmd and examples and all(passes(cmd, data, out) for data, out in examples)
+        draft = any(l.strip() == '// Черновик' for l in lines[:6])  # пометка в шапке: считать черновиком, даже если примеры проходят
+        ok = not draft and cmd and examples and all(passes(cmd, data, out) for data, out in examples)
         problems.append(dict(id=int(head[1]), name=head[2], level=level, file=name, time=touched.get(name, 0),
                              status='done' if ok else 'draft'))
     return sorted(problems, key=lambda p: p['id'])
